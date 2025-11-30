@@ -1,0 +1,101 @@
+//
+//  OnboardingView.swift
+//  EasyModeTest1
+//
+//  Main onboarding flow container that guides users through
+//  value proposition, permissions, and initial app selection.
+//
+
+import SwiftUI
+#if canImport(FamilyControls)
+import FamilyControls
+#endif
+
+/// Container view for the onboarding flow
+/// Manages navigation between onboarding screens and completion state
+struct OnboardingView: View {
+    /// Callback when onboarding is complete
+    let onComplete: () -> Void
+    
+    /// Current page in the onboarding flow
+    @State private var currentPage: OnboardingPage = .welcome
+    
+    /// Screen Time manager for authorization
+    @StateObject private var screenTimeManager = ScreenTimeManager.shared
+    
+    /// Track if authorization was successful
+    @State private var authorizationGranted = false
+    
+    var body: some View {
+        ZStack {
+            Color.parchment
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Progress indicator
+                OnboardingProgressView(currentPage: currentPage)
+                    .padding(.top, 16)
+                    .padding(.horizontal, 32)
+                
+                // Page content
+                TabView(selection: $currentPage) {
+                    WelcomePageView(onContinue: { advanceToPage(.permissions) })
+                        .tag(OnboardingPage.welcome)
+                    
+                    PermissionsPageView(
+                        screenTimeManager: screenTimeManager,
+                        onContinue: {
+                            authorizationGranted = true
+                            advanceToPage(.appSelection)
+                        }
+                    )
+                    .tag(OnboardingPage.permissions)
+                    
+                    AppSelectionPageView(
+                        screenTimeManager: screenTimeManager,
+                        onComplete: onComplete
+                    )
+                    .tag(OnboardingPage.appSelection)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: currentPage)
+            }
+        }
+    }
+    
+    private func advanceToPage(_ page: OnboardingPage) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+            currentPage = page
+        }
+    }
+}
+
+// MARK: - Onboarding Page Enum
+
+enum OnboardingPage: Int, CaseIterable {
+    case welcome = 0
+    case permissions = 1
+    case appSelection = 2
+}
+
+// MARK: - Progress Indicator
+
+struct OnboardingProgressView: View {
+    let currentPage: OnboardingPage
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(OnboardingPage.allCases, id: \.rawValue) { page in
+                Capsule()
+                    .fill(page.rawValue <= currentPage.rawValue ? Color.primaryOrange : Color.borderColor.opacity(0.3))
+                    .frame(height: 3)
+                    .animation(.spring(response: 0.4), value: currentPage)
+            }
+        }
+    }
+}
+
+#Preview {
+    OnboardingView(onComplete: {})
+}
+
