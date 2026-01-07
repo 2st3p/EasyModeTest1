@@ -31,6 +31,7 @@ struct AppTabView: View {
                 }
                 .tag(2)
         }
+        .accessibilityIdentifier("tabs.root")
         .tint(.primaryOrange)
         .onAppear {
             configureTabBarAppearance()
@@ -67,4 +68,3 @@ struct AppTabView: View {
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
 }
-

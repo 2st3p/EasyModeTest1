@@ -39,6 +39,8 @@ final class TaskViewModel: ObservableObject {
         // Ensure only one active task at a time
         for task in activeTasks {
             task.isInProgress = false
+            task.isCancelled = true
+            task.cancelledAt = Date()
         }
         
         // Create and save the new task
@@ -67,6 +69,8 @@ final class TaskViewModel: ObservableObject {
     func completeTask(_ task: Item, using modelContext: ModelContext) throws {
         task.isInProgress = false
         task.isCompleted = true
+        task.isCancelled = false
+        task.completedAt = Date()
         
         do {
             try modelContext.save()
@@ -82,6 +86,8 @@ final class TaskViewModel: ObservableObject {
     /// Ends app blocking when task is cancelled
     func cancelTask(_ task: Item, using modelContext: ModelContext) throws {
         task.isInProgress = false
+        task.isCancelled = true
+        task.cancelledAt = Date()
         
         do {
             try modelContext.save()

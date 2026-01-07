@@ -108,6 +108,7 @@ final class BlockViewModel: ObservableObject {
         if hasChanges {
             do {
                 try modelContext.save()
+                screenTimeManager.persistSelection()
             } catch {
                 throw BlockError.saveFailed(error.localizedDescription)
             }
@@ -145,6 +146,9 @@ final class BlockViewModel: ObservableObject {
         if hasChanges {
             do {
                 try modelContext.save()
+                #if canImport(FamilyControls)
+                screenTimeManager.persistSelection()
+                #endif
             } catch {
                 throw BlockError.saveFailed(error.localizedDescription)
             }

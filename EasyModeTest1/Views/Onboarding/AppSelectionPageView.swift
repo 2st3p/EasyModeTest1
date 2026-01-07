@@ -27,11 +27,15 @@ struct AppSelectionPageView: View {
     
     /// Selected apps count for display
     private var selectedAppsCount: Int {
+        #if targetEnvironment(simulator)
+        return 0
+        #else
         #if canImport(FamilyControls)
         return screenTimeManager.activitySelection.applicationTokens.count +
                screenTimeManager.activitySelection.categoryTokens.count
         #else
         return 0
+        #endif
         #endif
     }
     
@@ -80,6 +84,10 @@ struct AppSelectionPageView: View {
             
             // App picker section
             VStack(spacing: 16) {
+                #if targetEnvironment(simulator)
+                // Simulator fallback
+                SimulatorAppPicker()
+                #else
                 #if canImport(FamilyControls)
                 // Real FamilyActivityPicker
                 FamilyActivityPicker(selection: $screenTimeManager.activitySelection)
@@ -91,8 +99,9 @@ struct AppSelectionPageView: View {
                     )
                     .paperShadow()
                 #else
-                // Simulator fallback
+                // Fallback for non-FamilyControls platforms
                 SimulatorAppPicker()
+                #endif
                 #endif
                 
                 // Selection count
@@ -146,6 +155,9 @@ struct AppSelectionPageView: View {
     
     private func completeOnboarding() {
         HapticManager.shared.impact()
+        #if canImport(FamilyControls)
+        screenTimeManager.persistSelection()
+        #endif
         onComplete()
     }
 }
@@ -249,4 +261,3 @@ struct SimulatorAppPicker: View {
         onComplete: {}
     )
 }
-

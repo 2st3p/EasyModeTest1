@@ -59,6 +59,7 @@ struct TaskEntryView: View {
                         .font(.serifLarge(28))
                         .foregroundColor(.softBlack)
                         .focused($isTextFieldFocused)
+                        .accessibilityIdentifier("task.input")
                         .lineLimit(1...)
                         .padding(.bottom, 16)
                         .overlay(
@@ -107,6 +108,7 @@ struct TaskEntryView: View {
                         .paperShadow()
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("task.start")
                 .padding(.horizontal, 32)
                 .padding(.bottom, 32)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -117,5 +119,4 @@ struct TaskEntryView: View {
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isTextFieldFocused)
     }
 }
-
 

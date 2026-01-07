@@ -15,6 +15,12 @@ struct EasyModeTest1App: App {
     /// Tracks whether the user has completed onboarding
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     
+    init() {
+        if ProcessInfo.processInfo.arguments.contains("-ui-testing") {
+            UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        }
+    }
+    
     /// Configures the SwiftData model container for persistent storage
     /// This container manages the app's data model and provides the context for data operations
     var sharedModelContainer: ModelContainer = {

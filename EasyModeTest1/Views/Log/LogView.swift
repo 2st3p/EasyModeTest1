@@ -25,6 +25,7 @@ struct LogView: View {
                 Text("History")
                     .font(.serifTitle(28))
                     .foregroundColor(.softBlack)
+                    .accessibilityIdentifier("log.title")
                 Text("\(completedItems.count) tasks completed")
                     .font(.sansSmall(14))
                     .foregroundColor(.mutedForeground)

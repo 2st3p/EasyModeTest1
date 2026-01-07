@@ -36,11 +36,7 @@ final class ScreenTimeManager: ObservableObject {
     
     #if canImport(FamilyControls)
     /// The user's app selection from FamilyActivityPicker
-    @Published var activitySelection = FamilyActivitySelection() {
-        didSet {
-            saveSelection()
-        }
-    }
+    @Published var activitySelection = FamilyActivitySelection()
     #endif
     
     // MARK: - Private Properties
@@ -56,12 +52,9 @@ final class ScreenTimeManager: ObservableObject {
     private let activityCenter = DeviceActivityCenter()
     #endif
     
-    /// UserDefaults key for persisting selection
-    private let selectionKey = "EasyMode.SelectedApps"
-    
     /// App Group identifier for sharing data with extensions
     /// Note: Update this with your actual App Group identifier
-    static let appGroupIdentifier = "group.com.easymode.shared"
+    static let appGroupIdentifier = SharedStorage.appGroupIdentifier
     
     // MARK: - Initialization
     
@@ -195,47 +188,33 @@ final class ScreenTimeManager: ObservableObject {
     #if canImport(FamilyControls)
     /// Saves the current app selection to UserDefaults
     private func saveSelection() {
-        guard let defaults = UserDefaults(suiteName: Self.appGroupIdentifier) ?? UserDefaults.standard as UserDefaults? else { return }
-        
-        do {
-            let data = try PropertyListEncoder().encode(activitySelection)
-            defaults.set(data, forKey: selectionKey)
-        } catch {
-            self.error = .persistenceFailed("Failed to save app selection")
-        }
+        SharedStorage.shared.saveSelection(activitySelection)
+    }
+
+    /// Persists the current selection when the user finishes editing
+    func persistSelection() {
+        saveSelection()
     }
     
     /// Loads the saved app selection from UserDefaults
     private func loadSavedSelection() {
-        let defaults = UserDefaults(suiteName: Self.appGroupIdentifier) ?? UserDefaults.standard
-        
-        guard let data = defaults.data(forKey: selectionKey) else { return }
-        
-        do {
-            activitySelection = try PropertyListDecoder().decode(FamilyActivitySelection.self, from: data)
-        } catch {
-            // Selection couldn't be loaded, start fresh
-            activitySelection = FamilyActivitySelection()
-        }
+        activitySelection = SharedStorage.shared.loadSelection() ?? FamilyActivitySelection()
     }
     #endif
     
     /// Saves the current task text for shield display
     private func saveCurrentTask(_ taskText: String) {
-        let defaults = UserDefaults(suiteName: Self.appGroupIdentifier) ?? UserDefaults.standard
-        defaults.set(taskText, forKey: "EasyMode.CurrentTask")
+        SharedStorage.shared.setCurrentTask(taskText)
     }
     
     /// Clears the current task text
     private func clearCurrentTask() {
-        let defaults = UserDefaults(suiteName: Self.appGroupIdentifier) ?? UserDefaults.standard
-        defaults.removeObject(forKey: "EasyMode.CurrentTask")
+        SharedStorage.shared.clearCurrentTask()
     }
     
     /// Retrieves the current task text (used by Shield extension)
     static func getCurrentTask() -> String? {
-        let defaults = UserDefaults(suiteName: appGroupIdentifier) ?? UserDefaults.standard
-        return defaults.string(forKey: "EasyMode.CurrentTask")
+        SharedStorage.shared.getCurrentTask()
     }
     
     // MARK: - Convenience

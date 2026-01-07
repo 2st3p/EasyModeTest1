@@ -66,6 +66,7 @@ struct ActiveTaskView: View {
                         .paperShadowLarge()
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("task.complete")
                 .scaleEffect(isCompleting ? 0 : 1.0)
                 .opacity(isCompleting ? 0 : 1.0)
                 .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isCompleting)
@@ -122,5 +123,4 @@ struct ActiveTaskView: View {
         }
     }
 }
-
 

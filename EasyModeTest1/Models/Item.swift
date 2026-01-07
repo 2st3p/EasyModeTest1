@@ -19,11 +19,28 @@ final class Item {
     var isInProgress: Bool
     /// Whether the task has been completed
     var isCompleted: Bool
+    /// Whether the task has been cancelled
+    var isCancelled: Bool
+    /// When the task was completed
+    var completedAt: Date?
+    /// When the task was cancelled
+    var cancelledAt: Date?
     
-    init(taskText: String = "", timestamp: Date = .now, isInProgress: Bool = false, isCompleted: Bool = false) {
+    init(
+        taskText: String = "",
+        timestamp: Date = .now,
+        isInProgress: Bool = false,
+        isCompleted: Bool = false,
+        isCancelled: Bool = false,
+        completedAt: Date? = nil,
+        cancelledAt: Date? = nil
+    ) {
         self.taskText = taskText
         self.timestamp = timestamp
         self.isInProgress = isInProgress
         self.isCompleted = isCompleted
+        self.isCancelled = isCancelled
+        self.completedAt = completedAt
+        self.cancelledAt = cancelledAt
     }
 }

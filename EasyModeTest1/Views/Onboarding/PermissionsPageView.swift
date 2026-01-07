@@ -149,6 +149,19 @@ struct PermissionsPageView: View {
         isRequesting = true
         errorMessage = nil
         
+        #if targetEnvironment(simulator)
+        if ProcessInfo.processInfo.arguments.contains("-ui-testing") {
+            isRequesting = false
+            onContinue()
+            return
+        }
+        // Simulator: skip permission (FamilyControls doesn't work in simulator)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            isRequesting = false
+            HapticManager.shared.success()
+            onContinue()
+        }
+        #else
         #if canImport(FamilyControls)
         Task {
             do {
@@ -170,13 +183,7 @@ struct PermissionsPageView: View {
                 }
             }
         }
-        #else
-        // Simulator: skip permission
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            isRequesting = false
-            HapticManager.shared.success()
-            onContinue()
-        }
+        #endif
         #endif
     }
 }
@@ -220,4 +227,3 @@ struct InfoRow: View {
         onContinue: {}
     )
 }
-
