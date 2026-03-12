@@ -241,10 +241,6 @@ final class ScreenTimeManager: ObservableObject {
         saveSelection()
         if isFocusActive {
             applyShields()
-            // Update Live Activity to reflect new blocking state
-            Task {
-                await LiveActivityManager.shared.updateBlockingState(isBlocking: hasSelectedApps)
-            }
         }
     }
     
