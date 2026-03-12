@@ -16,6 +16,13 @@ Getting Started
 1. Open `EasyModeTest1.xcodeproj` in Xcode
 2. Select the `EasyModeTest1` target and run on a simulator or device
 
+Testing
+- `./scripts/test.sh build` builds the app on an available iPhone simulator.
+- `./scripts/test.sh unit` runs the fast unit/service test lane.
+- `./scripts/test.sh ui` runs the lean UI regression lane.
+- `./scripts/test.sh all` runs the default pre-merge gate.
+- `./scripts/test.sh perf-ui` runs the opt-in launch performance test.
+
 Notes
 - The `Block` tab uses a placeholder picker when `FamilyControls` is unavailable. On devices with Screen Time entitlements and FamilyControls, the System App Picker is used.
 - Only one active task is allowed at a time.
@@ -28,4 +35,3 @@ Roadmap
 - Focus timer
 - Rich analytics in Log
 - Deeper Screen Time integrations
-
