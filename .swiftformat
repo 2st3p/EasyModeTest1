@@ -1,0 +1,41 @@
+--allman false
+--binaryoperators spaced
+--commas always
+--comments indent
+--consecutiveblanklines one
+--consecutiveplaceholders
+--elseposition same-line
+--empty false
+--enumcaseindent 0
+--exponentcase lowercase
+--exponentmark e
+--extensionindent 0
+--fragment false
+--header strip
+--hexcase uppercase
+--hexliteralcase uppercase
+--ifdef indent
+--importgrouping alpha
+--indent 4
+--indentcase false
+--insertlines
+--letbinding separated
+--linebreaks lf
+--modifierorder
+--nospaceoperators
+--nowrap false
+--octalcase uppercase
+--octalliteralcase uppercase
+--operatorindent 0
+--patternlet
+--ranges spaced
+--removelines
+--semicolons never
+--self insert
+--shortclosure
+--stripspace
+--trimwhitespace
+--typeindent 0
+--wraparguments
+--wrapcollections
+--wrapelements
