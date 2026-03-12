@@ -18,6 +18,9 @@ struct PermissionsPageView: View {
     
     /// Callback when permissions are granted
     let onContinue: () -> Void
+
+    /// Whether the view should auto-advance if access is already granted
+    let autoContinueIfAuthorized: Bool
     
     /// Loading state during authorization
     @State private var isRequesting = false
@@ -27,6 +30,16 @@ struct PermissionsPageView: View {
     
     /// Animation states
     @State private var showContent = false
+
+    init(
+        screenTimeManager: ScreenTimeManager,
+        onContinue: @escaping () -> Void,
+        autoContinueIfAuthorized: Bool = true
+    ) {
+        self.screenTimeManager = screenTimeManager
+        self.onContinue = onContinue
+        self.autoContinueIfAuthorized = autoContinueIfAuthorized
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -132,7 +145,13 @@ struct PermissionsPageView: View {
         .onAppear {
             animateIn()
             // Check if already authorized
-            if screenTimeManager.isAuthorized {
+            if autoContinueIfAuthorized && screenTimeManager.isAuthorized {
+                onContinue()
+            }
+        }
+        .onChange(of: screenTimeManager.isAuthorized) { _, isAuthorized in
+            // Auto-dismiss if authorization is granted while this view is visible
+            if autoContinueIfAuthorized && isAuthorized {
                 onContinue()
             }
         }
@@ -224,6 +243,7 @@ struct InfoRow: View {
 #Preview {
     PermissionsPageView(
         screenTimeManager: ScreenTimeManager.shared,
-        onContinue: {}
+        onContinue: {},
+        autoContinueIfAuthorized: true
     )
 }

@@ -12,12 +12,29 @@ import SwiftData
 /// This file configures the app's data model and sets up the main navigation structure.
 @main
 struct EasyModeTest1App: App {
+    fileprivate static let uiTestResetStateKey = "UI_TEST_RESET_STATE"
+
     /// Tracks whether the user has completed onboarding
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    
+
+    /// Deferred resolution: prevents @AppStorage from briefly showing default (false)
+    /// on first frame before persisted value is read, which caused onboarding flash.
+    @State private var hasResolvedLaunchState = false
+
     init() {
-        if ProcessInfo.processInfo.arguments.contains("-ui-testing") {
+        let processInfo = ProcessInfo.processInfo
+        let shouldResetForUITesting =
+            processInfo.arguments.contains("-ui-testing")
+            && processInfo.environment[Self.uiTestResetStateKey] == "true"
+
+        // UI Testing: Reset onboarding for fresh test runs
+        if shouldResetForUITesting {
             UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+        }
+
+        // UI Testing: Simulate already-completed onboarding for relaunch tests
+        if processInfo.environment["UI_TEST_HAS_COMPLETED_ONBOARDING"] == "true" {
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
         }
     }
     
@@ -41,7 +58,31 @@ struct EasyModeTest1App: App {
 
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
+            LaunchRootView(
+                hasCompletedOnboarding: $hasCompletedOnboarding,
+                hasResolvedLaunchState: $hasResolvedLaunchState
+            )
+        }
+        .modelContainer(sharedModelContainer)  // Provides the data model context to all views
+    }
+}
+
+private struct LaunchRootView: View {
+    @Binding var hasCompletedOnboarding: Bool
+    @Binding var hasResolvedLaunchState: Bool
+
+    @Environment(\.modelContext) private var modelContext
+
+    private let processInfo = ProcessInfo.processInfo
+
+    var body: some View {
+        Group {
+            if !hasResolvedLaunchState {
+                // Deferred resolution: avoid first-frame @AppStorage default flash.
+                // Show neutral background until launch state is confirmed.
+                Color.parchment
+                    .ignoresSafeArea()
+            } else if hasCompletedOnboarding {
                 AppTabView()
             } else {
                 OnboardingView {
@@ -51,6 +92,22 @@ struct EasyModeTest1App: App {
                 }
             }
         }
-        .modelContainer(sharedModelContainer)  // Provides the data model context to all views
+        .task {
+            // Yield one run loop so @AppStorage has the correct persisted value
+            // before we decide which view to show. Prevents onboarding flash.
+            await Task.yield()
+
+            do {
+                try LaunchStateCoordinator.prepareForLaunch(
+                    modelContext: modelContext,
+                    shouldResetForUITesting: processInfo.arguments.contains("-ui-testing")
+                        && processInfo.environment[EasyModeTest1App.uiTestResetStateKey] == "true"
+                )
+            } catch {
+                print("⚠️ Failed to prepare launch state: \(error)")
+            }
+
+            hasResolvedLaunchState = true
+        }
     }
 }

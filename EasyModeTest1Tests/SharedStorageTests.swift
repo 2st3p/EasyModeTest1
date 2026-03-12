@@ -3,6 +3,68 @@ import Testing
 @testable import EasyModeTest1
 
 struct SharedStorageTests {
+    @Test
+    func shieldContentBuilder_usesAppNameAndTaskWhenPresent() {
+        let content = ShieldContentBuilder.build(
+            currentTask: "Ship the blocking screen",
+            blockedAppName: "Instagram",
+            context: .application
+        )
+
+        #expect(content.title == "Ship the blocking screen")
+        #expect(content.subtitle == "Instagram can wait... get your shit done first.")
+        #expect(content.primaryButtonLabel == "Back to focus")
+    }
+
+    @Test
+    func shieldContentBuilder_fallsBackWhenTaskMissing() {
+        let content = ShieldContentBuilder.build(
+            currentTask: "   ",
+            blockedAppName: "TikTok",
+            context: .application
+        )
+
+        #expect(content.title == "Stay focused")
+        #expect(content.subtitle == "TikTok can wait... get your shit done first.")
+    }
+
+    @Test
+    func shieldContentBuilder_usesGenericCopyWithoutAppName() {
+        let content = ShieldContentBuilder.build(
+            currentTask: "Write the spec",
+            blockedAppName: nil,
+            context: .webDomain
+        )
+
+        #expect(content.title == "Write the spec")
+        #expect(content.subtitle == "That can wait... get your shit done first.")
+    }
+
+    @Test
+    func shieldContentBuilder_fallsBackWhenEverythingMissing() {
+        let content = ShieldContentBuilder.build(
+            currentTask: nil,
+            blockedAppName: nil,
+            context: .category
+        )
+
+        #expect(content.title == "Stay focused")
+        #expect(content.subtitle == "That can wait... get your shit done first.")
+    }
+
+    @Test
+    func shieldContentBuilder_trimsLongTaskInput() {
+        let longTask = "  Finish the custom blocking screen before touching anything else in this release.  "
+        let content = ShieldContentBuilder.build(
+            currentTask: longTask,
+            blockedAppName: "YouTube",
+            context: .application
+        )
+
+        #expect(content.title == "Finish the custom blocking screen before touching anything else in this release.")
+        #expect(!content.title.isEmpty)
+    }
+
     @Test @MainActor
     func currentTaskRoundTrip() throws {
         let suiteName = "SharedStorageTests.currentTask"
@@ -23,10 +85,29 @@ struct SharedStorageTests {
         defaults.removePersistentDomain(forName: suiteName)
 
         let storage = SharedStorage(defaults: defaults)
-        storage.setFocusActive(true)
+        let startTime = Date(timeIntervalSince1970: 1_700_000_000)
+
+        storage.setFocusActive(true, startTime: startTime)
         #expect(storage.isFocusActive() == true)
-        #expect(storage.getFocusStartTime() != nil)
+        #expect(storage.getFocusStartTime() == startTime)
         storage.setFocusActive(false)
+        #expect(storage.isFocusActive() == false)
+        #expect(storage.getFocusStartTime() == nil)
+    }
+
+    @Test @MainActor
+    func clearAll_removesAllSessionKeys() throws {
+        let suiteName = "SharedStorageTests.clearAll"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+
+        let storage = SharedStorage(defaults: defaults)
+        storage.setCurrentTask("Draft spec")
+        storage.setFocusActive(true, startTime: Date(timeIntervalSince1970: 1_700_000_001))
+
+        storage.clearAll()
+
+        #expect(storage.getCurrentTask() == nil)
         #expect(storage.isFocusActive() == false)
         #expect(storage.getFocusStartTime() == nil)
     }

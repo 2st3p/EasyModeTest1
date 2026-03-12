@@ -11,8 +11,16 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
-      - name: Select Xcode
-        run: sudo xcode-select -s "/Applications/Xcode_15.4.app/Contents/Developer" || true
+      - name: Select Xcode 16
+        run: |
+          xcode_path="$(find /Applications -maxdepth 1 -name 'Xcode_16*.app' -print | sort | tail -n 1)"
+          if [[ -z "${xcode_path}" ]]; then
+            echo "No Xcode 16 installation found on the runner." >&2
+            exit 1
+          fi
+
+          sudo xcode-select -s "${xcode_path}/Contents/Developer"
+          xcodebuild -version
       - name: Prepare test runner
         run: chmod +x scripts/test.sh
       - name: Unit tests
