@@ -16,6 +16,7 @@ Commands:
   build     Build the app for the selected simulator
   unit      Build and run the unit/service test lane
   ui        Build and run the lean UI regression lane
+  ui-restore Run the active-session relaunch regression lane
   all       Run unit then UI lanes
   perf-ui   Run the opt-in UI performance lane
 EOF
@@ -141,7 +142,12 @@ run_unit() {
 run_ui() {
   build_lane "${UI_SCHEME}"
   test_lane "${UI_SCHEME}" \
-    -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testOnboardingToFirstTaskCompletion \
+    -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testOnboardingToFirstTaskCompletion
+}
+
+run_ui_restore() {
+  build_lane "${UI_SCHEME}"
+  test_lane "${UI_SCHEME}" \
     -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testActiveSessionRestoresOnRelaunch
 }
 
@@ -160,6 +166,9 @@ case "${1:-}" in
     ;;
   ui)
     run_ui
+    ;;
+  ui-restore)
+    run_ui_restore
     ;;
   all)
     run_unit

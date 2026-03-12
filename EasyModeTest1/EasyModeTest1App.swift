@@ -12,6 +12,8 @@ import SwiftData
 /// This file configures the app's data model and sets up the main navigation structure.
 @main
 struct EasyModeTest1App: App {
+    fileprivate static let uiTestResetStateKey = "UI_TEST_RESET_STATE"
+
     /// Tracks whether the user has completed onboarding
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
@@ -21,9 +23,12 @@ struct EasyModeTest1App: App {
 
     init() {
         let processInfo = ProcessInfo.processInfo
+        let shouldResetForUITesting =
+            processInfo.arguments.contains("-ui-testing")
+            && processInfo.environment[Self.uiTestResetStateKey] == "true"
 
         // UI Testing: Reset onboarding for fresh test runs
-        if processInfo.arguments.contains("-ui-testing") {
+        if shouldResetForUITesting {
             UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
         }
 
@@ -95,7 +100,8 @@ private struct LaunchRootView: View {
             do {
                 try LaunchStateCoordinator.prepareForLaunch(
                     modelContext: modelContext,
-                    isUITesting: processInfo.arguments.contains("-ui-testing")
+                    shouldResetForUITesting: processInfo.arguments.contains("-ui-testing")
+                        && processInfo.environment[EasyModeTest1App.uiTestResetStateKey] == "true"
                 )
             } catch {
                 print("⚠️ Failed to prepare launch state: \(error)")

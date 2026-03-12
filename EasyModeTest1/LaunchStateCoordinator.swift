@@ -5,10 +5,10 @@ import SwiftData
 enum LaunchStateCoordinator {
     static func prepareForLaunch(
         modelContext: ModelContext,
-        isUITesting: Bool,
+        shouldResetForUITesting: Bool,
         sharedStorage: SharedStorage = .shared
     ) throws {
-        if isUITesting {
+        if shouldResetForUITesting {
             try resetPersistentStateForUITesting(modelContext: modelContext, sharedStorage: sharedStorage)
         }
 

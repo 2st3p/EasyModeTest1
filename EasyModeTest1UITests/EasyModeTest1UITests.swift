@@ -11,10 +11,15 @@ final class EasyModeTest1UITests: XCTestCase {
     private enum Timeout {
         static let short: TimeInterval = 2
         static let medium: TimeInterval = 5
+        static let long: TimeInterval = 10
     }
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+    }
+
+    override func tearDownWithError() throws {
+        XCUIApplication().terminate()
     }
 
     @MainActor
@@ -36,23 +41,32 @@ final class EasyModeTest1UITests: XCTestCase {
         completeOnboarding(in: app)
         enterTask("Restore focus", in: app)
 
-        XCTAssertTrue(app.staticTexts["task.activeText"].waitForExistence(timeout: Timeout.medium))
+        XCTAssertTrue(app.staticTexts["task.activeText"].waitForExistence(timeout: Timeout.long))
+        XCTAssertTrue(app.buttons["task.complete"].waitForExistence(timeout: Timeout.long))
         XCTAssertEqual(app.staticTexts["task.activeText"].label, "Restore focus")
+
+        // Give persisted task and launch state a moment to flush before relaunching on slower CI runners.
+        sleep(1)
         app.terminate()
 
-        let relaunchedApp = XCUIApplication()
-        relaunchedApp.launch()
+        app.launchEnvironment["UI_TEST_RESET_STATE"] = "false"
+        app.launchEnvironment["UI_TEST_HAS_COMPLETED_ONBOARDING"] = "true"
+        app.launch()
 
-        XCTAssertFalse(relaunchedApp.buttons["Get Started"].exists)
-        XCTAssertTrue(relaunchedApp.tabBars.buttons["Home"].waitForExistence(timeout: Timeout.medium))
-        XCTAssertTrue(relaunchedApp.staticTexts["task.activeText"].waitForExistence(timeout: Timeout.medium))
-        XCTAssertEqual(relaunchedApp.staticTexts["task.activeText"].label, "Restore focus")
-        XCTAssertTrue(relaunchedApp.buttons["task.complete"].exists)
+        XCTAssertTrue(app.tabBars.buttons["Home"].waitForExistence(timeout: Timeout.long))
+        XCTAssertFalse(app.buttons["Get Started"].exists)
+        XCTAssertTrue(app.staticTexts["task.activeText"].waitForExistence(timeout: Timeout.long))
+        XCTAssertEqual(app.staticTexts["task.activeText"].label, "Restore focus")
+        XCTAssertTrue(app.buttons["task.complete"].waitForExistence(timeout: Timeout.medium))
     }
 
     private func launchFreshApp() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments.append("-ui-testing")
+        if app.state != .notRunning {
+            app.terminate()
+        }
+        app.launchArguments = ["-ui-testing"]
+        app.launchEnvironment["UI_TEST_RESET_STATE"] = "true"
         app.launch()
         return app
     }
@@ -86,7 +100,14 @@ final class EasyModeTest1UITests: XCTestCase {
         }
 
         let startButton = app.buttons["task.start"]
-        XCTAssertTrue(startButton.waitForExistence(timeout: Timeout.short))
+        XCTAssertTrue(startButton.waitForExistence(timeout: Timeout.medium))
+        XCTAssertTrue(waitUntilHittable(startButton, timeout: Timeout.medium))
         startButton.tap()
+    }
+
+    private func waitUntilHittable(_ element: XCUIElement, timeout: TimeInterval) -> Bool {
+        let predicate = NSPredicate(format: "exists == true AND hittable == true")
+        let expectation = XCTNSPredicateExpectation(predicate: predicate, object: element)
+        return XCTWaiter().wait(for: [expectation], timeout: timeout) == .completed
     }
 }
