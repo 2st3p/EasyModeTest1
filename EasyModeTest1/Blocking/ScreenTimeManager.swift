@@ -27,7 +27,10 @@ final class ScreenTimeManager: ObservableObject {
     
     /// Whether Screen Time authorization has been granted
     @Published private(set) var isAuthorized = false
-    
+
+    /// Whether authorization status has been checked (used to prevent UI flashes during startup)
+    @Published private(set) var hasCheckedAuthorization = false
+
     /// Whether a focus session is currently active (apps are blocked)
     @Published private(set) var isFocusActive = false
     
@@ -36,12 +39,24 @@ final class ScreenTimeManager: ObservableObject {
     
     #if canImport(FamilyControls)
     /// The user's app selection from FamilyActivityPicker
-    @Published var activitySelection = FamilyActivitySelection()
+    @Published var activitySelection = ScreenTimeManager.makeSelection()
     #endif
     
     // MARK: - Private Properties
     
     #if canImport(FamilyControls)
+    private static func makeSelection() -> FamilyActivitySelection {
+        FamilyActivitySelection(includeEntireCategory: true)
+    }
+
+    private static func normalizedSelection(_ selection: FamilyActivitySelection) -> FamilyActivitySelection {
+        var normalizedSelection = makeSelection()
+        normalizedSelection.applicationTokens = selection.applicationTokens
+        normalizedSelection.categoryTokens = selection.categoryTokens
+        normalizedSelection.webDomainTokens = selection.webDomainTokens
+        return normalizedSelection
+    }
+
     /// ManagedSettingsStore for applying restrictions
     private let store = ManagedSettingsStore()
     
@@ -55,10 +70,31 @@ final class ScreenTimeManager: ObservableObject {
     /// App Group identifier for sharing data with extensions
     /// Note: Update this with your actual App Group identifier
     static let appGroupIdentifier = SharedStorage.appGroupIdentifier
+
+    static func selectionCount(
+        applicationCount: Int,
+        categoryCount: Int,
+        webDomainCount: Int
+    ) -> Int {
+        applicationCount + categoryCount + webDomainCount
+    }
+
+    static func hasAnySelection(
+        applicationCount: Int,
+        categoryCount: Int,
+        webDomainCount: Int
+    ) -> Bool {
+        selectionCount(
+            applicationCount: applicationCount,
+            categoryCount: categoryCount,
+            webDomainCount: webDomainCount
+        ) > 0
+    }
     
     // MARK: - Initialization
     
     private init() {
+        isFocusActive = SharedStorage.shared.isFocusActive()
         #if canImport(FamilyControls)
         loadSavedSelection()
         Task {
@@ -74,6 +110,7 @@ final class ScreenTimeManager: ObservableObject {
     func checkAuthorizationStatus() async {
         let status = AuthorizationCenter.shared.authorizationStatus
         isAuthorized = (status == .approved)
+        hasCheckedAuthorization = true
     }
     
     /// Requests Screen Time authorization from the user
@@ -100,6 +137,10 @@ final class ScreenTimeManager: ObservableObject {
     /// - Parameter taskText: The current task text to display on shields
     func startFocusSession(taskText: String) throws {
         #if canImport(FamilyControls)
+        // Re-read the live authorization state so a cold-launch race does not
+        // incorrectly reject blocking before the async status check finishes.
+        isAuthorized = (AuthorizationCenter.shared.authorizationStatus == .approved)
+
         guard isAuthorized else {
             throw ScreenTimeError.notAuthorized
         }
@@ -113,10 +154,12 @@ final class ScreenTimeManager: ObservableObject {
         // Schedule device activity for persistence
         try scheduleActivity()
         
+        SharedStorage.shared.setFocusActive(true)
         isFocusActive = true
         
         #else
         // Simulator fallback
+        SharedStorage.shared.setFocusActive(true)
         isFocusActive = true
         #endif
     }
@@ -133,9 +176,11 @@ final class ScreenTimeManager: ObservableObject {
         // Clear current task
         clearCurrentTask()
         
+        SharedStorage.shared.setFocusActive(false)
         isFocusActive = false
         
         #else
+        SharedStorage.shared.setFocusActive(false)
         isFocusActive = false
         #endif
     }
@@ -194,11 +239,22 @@ final class ScreenTimeManager: ObservableObject {
     /// Persists the current selection when the user finishes editing
     func persistSelection() {
         saveSelection()
+        if isFocusActive {
+            applyShields()
+            // Update Live Activity to reflect new blocking state
+            Task {
+                await LiveActivityManager.shared.updateBlockingState(isBlocking: hasSelectedApps)
+            }
+        }
     }
     
     /// Loads the saved app selection from UserDefaults
     private func loadSavedSelection() {
-        activitySelection = SharedStorage.shared.loadSelection() ?? FamilyActivitySelection()
+        if let savedSelection = SharedStorage.shared.loadSelection() {
+            activitySelection = Self.normalizedSelection(savedSelection)
+        } else {
+            activitySelection = Self.makeSelection()
+        }
     }
     #endif
     
@@ -222,8 +278,11 @@ final class ScreenTimeManager: ObservableObject {
     /// Whether there are any apps selected for blocking
     var hasSelectedApps: Bool {
         #if canImport(FamilyControls)
-        return !activitySelection.applicationTokens.isEmpty ||
-               !activitySelection.categoryTokens.isEmpty
+        return Self.hasAnySelection(
+            applicationCount: activitySelection.applicationTokens.count,
+            categoryCount: activitySelection.categoryTokens.count,
+            webDomainCount: activitySelection.webDomainTokens.count
+        )
         #else
         return false
         #endif
@@ -255,5 +314,3 @@ enum ScreenTimeError: LocalizedError {
         }
     }
 }
-
-

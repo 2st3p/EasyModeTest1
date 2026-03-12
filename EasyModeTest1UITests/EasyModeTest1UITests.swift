@@ -8,65 +8,85 @@
 import XCTest
 
 final class EasyModeTest1UITests: XCTestCase {
+    private enum Timeout {
+        static let short: TimeInterval = 2
+        static let medium: TimeInterval = 5
+    }
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
 
     @MainActor
     func testOnboardingToFirstTaskCompletion() throws {
-        let app = XCUIApplication()
-        app.launchArguments.append("-ui-testing")
-        app.launch()
+        let app = launchFreshApp()
+        completeOnboarding(in: app)
+        enterTask("Write spec", in: app)
 
-        app.buttons["Get Started"].tap()
-        app.buttons["Grant Permission"].tap()
-        app.buttons["Skip for Now"].tap()
-
-        let input = app.textFields["task.input"].firstMatch
-        if !input.exists {
-            let fallback = app.textViews["task.input"].firstMatch
-            XCTAssertTrue(fallback.waitForExistence(timeout: 2))
-            fallback.tap()
-            fallback.typeText("Write spec")
-        } else {
-            XCTAssertTrue(input.waitForExistence(timeout: 2))
-            input.tap()
-            input.typeText("Write spec")
-        }
-
-        app.buttons["task.start"].tap()
+        XCTAssertTrue(app.buttons["task.complete"].waitForExistence(timeout: Timeout.medium))
         app.buttons["task.complete"].tap()
 
         app.tabBars.buttons["Log"].tap()
-        XCTAssertTrue(app.staticTexts["log.title"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["log.title"].waitForExistence(timeout: Timeout.medium))
     }
 
     @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
+    func testActiveSessionRestoresOnRelaunch() throws {
+        let app = launchFreshApp()
+        completeOnboarding(in: app)
+        enterTask("Restore focus", in: app)
+
+        XCTAssertTrue(app.staticTexts["task.activeText"].waitForExistence(timeout: Timeout.medium))
+        XCTAssertEqual(app.staticTexts["task.activeText"].label, "Restore focus")
+        app.terminate()
+
+        let relaunchedApp = XCUIApplication()
+        relaunchedApp.launch()
+
+        XCTAssertFalse(relaunchedApp.buttons["Get Started"].exists)
+        XCTAssertTrue(relaunchedApp.tabBars.buttons["Home"].waitForExistence(timeout: Timeout.medium))
+        XCTAssertTrue(relaunchedApp.staticTexts["task.activeText"].waitForExistence(timeout: Timeout.medium))
+        XCTAssertEqual(relaunchedApp.staticTexts["task.activeText"].label, "Restore focus")
+        XCTAssertTrue(relaunchedApp.buttons["task.complete"].exists)
+    }
+
+    private func launchFreshApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments.append("-ui-testing")
+        app.launch()
+        return app
+    }
+
+    private func completeOnboarding(in app: XCUIApplication) {
+        let getStarted = app.buttons["Get Started"]
+        XCTAssertTrue(getStarted.waitForExistence(timeout: Timeout.medium))
+        getStarted.tap()
+
+        let grantPermission = app.buttons["Grant Permission"]
+        XCTAssertTrue(grantPermission.waitForExistence(timeout: Timeout.medium))
+        grantPermission.tap()
+
+        let skipForNow = app.buttons["Skip for Now"]
+        XCTAssertTrue(skipForNow.waitForExistence(timeout: Timeout.medium))
+        skipForNow.tap()
+
+        XCTAssertTrue(app.tabBars.buttons["Home"].waitForExistence(timeout: Timeout.medium))
+    }
+
+    private func enterTask(_ taskText: String, in app: XCUIApplication) {
+        let input = app.textFields["task.input"].firstMatch
+        if input.waitForExistence(timeout: Timeout.short) {
+            input.tap()
+            input.typeText(taskText)
+        } else {
+            let fallback = app.textViews["task.input"].firstMatch
+            XCTAssertTrue(fallback.waitForExistence(timeout: Timeout.medium))
+            fallback.tap()
+            fallback.typeText(taskText)
         }
+
+        let startButton = app.buttons["task.start"]
+        XCTAssertTrue(startButton.waitForExistence(timeout: Timeout.short))
+        startButton.tap()
     }
 }

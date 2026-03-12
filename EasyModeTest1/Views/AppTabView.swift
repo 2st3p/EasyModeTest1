@@ -9,7 +9,11 @@ import SwiftUI
 
 /// Main tab view with styled navigation matching DigitalDetoxCoach design
 struct AppTabView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
+    @State private var shouldShowPermissionsPrompt = false
+    @State private var hasResolvedAuthorization = false
+    @StateObject private var screenTimeManager = ScreenTimeManager.shared
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -35,6 +39,29 @@ struct AppTabView: View {
         .tint(.primaryOrange)
         .onAppear {
             configureTabBarAppearance()
+        }
+        .task {
+            await refreshScreenTimeAuthorization()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else { return }
+            Task {
+                // Re-check authorization when app becomes active, but don't reset
+                // hasResolvedAuthorization to avoid flashing the permission sheet
+                await refreshScreenTimeAuthorizationWithoutReset()
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { hasResolvedAuthorization && shouldShowPermissionsPrompt },
+            set: { shouldShowPermissionsPrompt = $0 }
+        )) {
+            PermissionsPageView(
+                screenTimeManager: screenTimeManager,
+                onContinue: {
+                    shouldShowPermissionsPrompt = false
+                },
+                autoContinueIfAuthorized: false
+            )
         }
     }
     
@@ -66,5 +93,29 @@ struct AppTabView: View {
         
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
+    @MainActor
+    private func refreshScreenTimeAuthorization() async {
+        #if targetEnvironment(simulator)
+        hasResolvedAuthorization = true
+        shouldShowPermissionsPrompt = false
+        #else
+        await screenTimeManager.checkAuthorizationStatus()
+        hasResolvedAuthorization = true
+        // Only show prompt if authorization check is complete and user is not authorized
+        shouldShowPermissionsPrompt = !screenTimeManager.isAuthorized
+        #endif
+    }
+
+    @MainActor
+    private func refreshScreenTimeAuthorizationWithoutReset() async {
+        #if targetEnvironment(simulator)
+        shouldShowPermissionsPrompt = false
+        #else
+        await screenTimeManager.checkAuthorizationStatus()
+        // Only update the prompt state, don't modify hasResolvedAuthorization
+        shouldShowPermissionsPrompt = !screenTimeManager.isAuthorized
+        #endif
     }
 }

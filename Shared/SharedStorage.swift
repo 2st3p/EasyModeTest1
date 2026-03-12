@@ -14,6 +14,60 @@ import Foundation
 import FamilyControls
 #endif
 
+enum ShieldContentContext {
+    case application
+    case category
+    case webDomain
+}
+
+struct ShieldContentConfiguration: Equatable {
+    let title: String
+    let subtitle: String
+    let primaryButtonLabel: String
+}
+
+enum ShieldContentBuilder {
+    private static let fallbackTitle = "Stay focused"
+    private static let fallbackSubtitle = "That can wait... get your shit done first."
+    private static let primaryButtonLabel = "Back to focus"
+
+    static func build(
+        currentTask: String?,
+        blockedAppName: String?,
+        context: ShieldContentContext
+    ) -> ShieldContentConfiguration {
+        let normalizedTask = normalized(currentTask)
+        let normalizedAppName = normalized(blockedAppName)
+
+        let subtitle: String
+        switch context {
+        case .application:
+            if let appName = normalizedAppName {
+                subtitle = "\(appName) can wait... get your shit done first."
+            } else {
+                subtitle = fallbackSubtitle
+            }
+        case .category, .webDomain:
+            subtitle = fallbackSubtitle
+        }
+
+        return ShieldContentConfiguration(
+            title: normalizedTask ?? fallbackTitle,
+            subtitle: subtitle,
+            primaryButtonLabel: primaryButtonLabel
+        )
+    }
+
+    private static func normalized(_ value: String?) -> String? {
+        guard let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines),
+              !trimmed.isEmpty else {
+            return nil
+        }
+
+        return trimmed
+    }
+}
+
 /// Keys for shared UserDefaults storage
 enum SharedStorageKey: String {
     /// The user's app selection for blocking
@@ -81,11 +135,11 @@ final class SharedStorage {
     // MARK: - Focus Session State
     
     /// Sets whether a focus session is active
-    func setFocusActive(_ isActive: Bool) {
+    func setFocusActive(_ isActive: Bool, startTime: Date? = nil) {
         defaults.set(isActive, forKey: SharedStorageKey.isFocusActive.rawValue)
         
         if isActive {
-            defaults.set(Date(), forKey: SharedStorageKey.focusStartTime.rawValue)
+            defaults.set(startTime ?? Date(), forKey: SharedStorageKey.focusStartTime.rawValue)
         } else {
             defaults.removeObject(forKey: SharedStorageKey.focusStartTime.rawValue)
         }
@@ -142,6 +196,4 @@ final class SharedStorage {
 // MARK: - CaseIterable for Keys
 
 extension SharedStorageKey: CaseIterable {}
-
-
 

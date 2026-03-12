@@ -31,8 +31,11 @@ struct AppSelectionPageView: View {
         return 0
         #else
         #if canImport(FamilyControls)
-        return screenTimeManager.activitySelection.applicationTokens.count +
-               screenTimeManager.activitySelection.categoryTokens.count
+        return ScreenTimeManager.selectionCount(
+            applicationCount: screenTimeManager.activitySelection.applicationTokens.count,
+            categoryCount: screenTimeManager.activitySelection.categoryTokens.count,
+            webDomainCount: screenTimeManager.activitySelection.webDomainTokens.count
+        )
         #else
         return 0
         #endif
@@ -106,7 +109,7 @@ struct AppSelectionPageView: View {
                 
                 // Selection count
                 if selectedAppsCount > 0 {
-                    Text("\(selectedAppsCount) app\(selectedAppsCount == 1 ? "" : "s") selected")
+                    Text("\(selectedAppsCount) item\(selectedAppsCount == 1 ? "" : "s") selected")
                         .font(.sansSmall(14))
                         .foregroundColor(.primaryOrange)
                         .transition(.opacity)

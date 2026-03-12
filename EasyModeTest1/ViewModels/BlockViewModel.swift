@@ -73,6 +73,24 @@ final class BlockViewModel: ObservableObject {
     func syncSelection() {
         selection = screenTimeManager.activitySelection
     }
+    
+    /// Number of apps/categories selected for blocking
+    var selectedCount: Int {
+        ScreenTimeManager.selectionCount(
+            applicationCount: selection.applicationTokens.count,
+            categoryCount: selection.categoryTokens.count,
+            webDomainCount: selection.webDomainTokens.count
+        )
+    }
+    
+    /// Whether any apps, categories, or web domains are selected for blocking
+    var hasSelectedApps: Bool {
+        selectedCount > 0
+    }
+    #else
+    var selectedCount: Int { 0 }
+    var hasSelectedApps: Bool { false }
+    func syncSelection() { }
     #endif
     
     /// Saves the selected apps to the data store
@@ -104,14 +122,15 @@ final class BlockViewModel: ObservableObject {
             }
         }
         
-        // Only save if there were changes
-        if hasChanges {
-            do {
+        do {
+            if hasChanges {
                 try modelContext.save()
-                screenTimeManager.persistSelection()
-            } catch {
-                throw BlockError.saveFailed(error.localizedDescription)
             }
+            // Categories and web domains are only tracked in FamilyActivitySelection,
+            // so persist the selection even when the BlockedApp model is unchanged.
+            screenTimeManager.persistSelection()
+        } catch {
+            throw BlockError.saveFailed(error.localizedDescription)
         }
         #else
         // Fallback for simulator/development - this method should not be called
