@@ -60,13 +60,16 @@ final class TaskViewModel: ObservableObject {
             
             // Start app blocking for focus session
             startFocusBlocking(taskText: trimmedInput)
+
+            let liveActivityStartTime = newTask.timestamp
+            let isBlocking = screenTimeManager.hasSelectedApps
             
             // Start Live Activity to show task on Lock Screen
             Task {
                 await liveActivityManager.startFocusActivity(
                     taskText: trimmedInput,
-                    isBlocking: screenTimeManager.hasSelectedApps,
-                    startTime: newTask.timestamp
+                    isBlocking: isBlocking,
+                    startTime: liveActivityStartTime
                 )
             }
             
