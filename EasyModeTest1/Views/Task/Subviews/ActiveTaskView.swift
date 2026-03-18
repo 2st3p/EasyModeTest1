@@ -46,6 +46,7 @@ struct ActiveTaskView: View {
                     .lineLimit(nil)
                     .padding(.horizontal, 32)
                     .padding(.bottom, 64)
+                    .accessibilityIdentifier("task.activeText")
                     .scaleEffect(isCompleting ? 1.2 : 1.0)
                     .opacity(isCompleting ? 0 : 1.0)
                     .blur(radius: isCompleting ? 10 : 0)
@@ -94,6 +95,7 @@ struct ActiveTaskView: View {
                 .animation(.easeInOut(duration: 0.3), value: isCompleting)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .parchmentBackground()
         .alert("Stop Focusing?", isPresented: $showCancelAlert) {
             Button("Cancel", role: .cancel) { }
@@ -123,4 +125,3 @@ struct ActiveTaskView: View {
         }
     }
 }
-

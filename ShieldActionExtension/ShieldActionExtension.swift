@@ -23,7 +23,7 @@ class ShieldActionExtension: ShieldActionDelegate {
     // MARK: - Application Shield Actions
     
     /// Handles the primary button action for a blocked application
-    override func handle(action: ShieldAction, for application: Application, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+    override func handle(action: ShieldAction, for application: ApplicationToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
         switch action {
         case .primaryButtonPressed:
             // Primary button dismisses the shield (user goes back to home)
@@ -41,7 +41,7 @@ class ShieldActionExtension: ShieldActionDelegate {
     // MARK: - Web Domain Shield Actions
     
     /// Handles the primary button action for a blocked web domain
-    override func handle(action: ShieldAction, for webDomain: WebDomain, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+    override func handle(action: ShieldAction, for webDomain: WebDomainToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
         switch action {
         case .primaryButtonPressed:
             completionHandler(.close)
@@ -57,7 +57,7 @@ class ShieldActionExtension: ShieldActionDelegate {
     // MARK: - Category Shield Actions
     
     /// Handles the primary button action for a blocked category
-    override func handle(action: ShieldAction, for category: ActivityCategory, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+    override func handle(action: ShieldAction, for category: ActivityCategoryToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
         switch action {
         case .primaryButtonPressed:
             completionHandler(.close)
@@ -86,7 +86,6 @@ class ShieldActionExtension: ShieldActionDelegate {
     - Log each time user hits the shield
     - Could feed into a "willpower score" or similar feature
  */
-
 
 
 

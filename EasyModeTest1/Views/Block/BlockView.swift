@@ -9,17 +9,12 @@ import SwiftUI
 import SwiftData
 
 /// View for managing blocked apps matching DigitalDetoxCoach design
-/// Displays a list of available apps and allows toggling them on/off
+/// Empty state uses copy and category icons to inspire users; single CTA opens FamilyActivityPicker
 struct BlockView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var blockedApps: [BlockedApp]
     @StateObject private var viewModel = BlockViewModel()
     @State private var showingAppPicker = false
-    
-    // Get set of blocked app names for quick lookup
-    private var blockedAppNames: Set<String> {
-        Set(blockedApps.map(\.appName))
-    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -63,85 +58,11 @@ struct BlockView: View {
                     .padding(.horizontal, 24)
                     .padding(.bottom, 32)
                     
-                    // Blocked Apps section header
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("BLOCKED APPS")
-                            .font(.sansTiny(10))
-                            .foregroundColor(.mutedForeground.opacity(0.6))
-                            .tracking(2)
+                    if viewModel.hasSelectedApps {
+                        nonEmptyState
+                    } else {
+                        emptyState
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 8)
-                    
-                    // App list
-                    VStack(spacing: 0) {
-                        ForEach(AvailableApps.apps, id: \.self) { appName in
-                            let isBlocked = blockedAppNames.contains(appName)
-                            
-                            Button(action: {
-                                HapticManager.shared.selection()
-                                toggleApp(appName)
-                            }) {
-                                HStack {
-                                    Text(appName)
-                                        .font(isBlocked ? .sansMedium(18) : .sansBody(18))
-                                        .foregroundColor(isBlocked ? .softBlack : .mutedForeground)
-                                    
-                                    Spacer()
-                                    
-                                    ZStack {
-                                        Circle()
-                                            .fill(isBlocked ? Color.primaryOrange : Color.clear)
-                                            .frame(width: 24, height: 24)
-                                        
-                                        Circle()
-                                            .stroke(isBlocked ? Color.primaryOrange : Color.borderColor.opacity(0.2), lineWidth: 2)
-                                            .frame(width: 24, height: 24)
-                                        
-                                        if isBlocked {
-                                            Image(systemName: "checkmark")
-                                                .font(.system(size: 12, weight: .bold))
-                                                .foregroundColor(.white)
-                                        }
-                                    }
-                                }
-                                .padding(.horizontal, 24)
-                                .padding(.vertical, 16)
-                                .background(
-                                    Rectangle()
-                                        .fill(Color.clear)
-                                        .border(Color.borderColor.opacity(0.2), width: 0.5)
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.bottom, 24)
-                    
-                    // Add more apps button
-                    Button(action: {
-                        HapticManager.shared.impact()
-                        showingAppPicker = true
-                    }) {
-                        HStack {
-                            Image(systemName: "plus")
-                                .font(.system(size: 16))
-                            Text("Add more apps")
-                                .font(.sansBody(16))
-                        }
-                        .foregroundColor(.mutedForeground)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                                .foregroundColor(.borderColor.opacity(0.2))
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 80) // Space for tab bar
                 }
             }
         }
@@ -152,6 +73,14 @@ struct BlockView: View {
                 viewModel: viewModel
             )
         }
+        .task {
+            viewModel.syncSelection()
+        }
+        .onChange(of: showingAppPicker) { _, isShowing in
+            if !isShowing {
+                viewModel.syncSelection()
+            }
+        }
         .alert("Error", isPresented: $viewModel.showError) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -159,29 +88,122 @@ struct BlockView: View {
         }
     }
     
-    private func toggleApp(_ appName: String) {
-        let isCurrentlyBlocked = blockedAppNames.contains(appName)
-        
-        if isCurrentlyBlocked {
-            // Remove from blocked apps
-            if let app = blockedApps.first(where: { $0.appName == appName }) {
-                modelContext.delete(app)
-                do {
-                    try modelContext.save()
-                } catch {
-                    viewModel.handleError(error)
+    // MARK: - Empty State
+    
+    private var emptyState: some View {
+        VStack(spacing: 32) {
+            // Inspirational copy
+            Text("What pulls you away from deep work?")
+                .font(.serifTitle(24))
+                .foregroundColor(.softBlack)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+            
+            Text("Social feeds, games, messaging—choose what to block during focus.")
+                .font(.sansBody(16))
+                .foregroundColor(.mutedForeground)
+                .multilineTextAlignment(.center)
+                .lineSpacing(4)
+                .padding(.horizontal, 24)
+            
+            // Category icons to spark thinking
+            HStack(spacing: 24) {
+                CategoryIcon(systemName: "bubble.left.and.bubble.right.fill", label: "Social")
+                CategoryIcon(systemName: "gamecontroller.fill", label: "Games")
+                CategoryIcon(systemName: "envelope.fill", label: "Messages")
+                CategoryIcon(systemName: "newspaper.fill", label: "News")
+                CategoryIcon(systemName: "play.rectangle.fill", label: "Video")
+            }
+            .padding(.vertical, 16)
+            
+            // Single CTA
+            Button(action: {
+                HapticManager.shared.impact()
+                showingAppPicker = true
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.system(size: 18))
+                    Text("Choose Apps to Block")
+                        .font(.sansMedium(18))
                 }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(Color.primaryOrange)
+                .cornerRadius(999)
+                .paperShadow()
             }
-        } else {
-            // Add to blocked apps (using appName as bundleID for now)
-            let bundleID = "com.\(appName.lowercased().replacingOccurrences(of: " ", with: ""))"
-            let newApp = BlockedApp(bundleID: bundleID, appName: appName)
-            modelContext.insert(newApp)
-            do {
-                try modelContext.save()
-            } catch {
-                viewModel.handleError(error)
+            .buttonStyle(.plain)
+            .padding(.horizontal, 24)
+        }
+        .padding(.bottom, 80)
+    }
+    
+    // MARK: - Non-Empty State
+    
+    private var nonEmptyState: some View {
+        VStack(spacing: 24) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("BLOCKED APPS")
+                    .font(.sansTiny(10))
+                    .foregroundColor(.mutedForeground.opacity(0.6))
+                    .tracking(2)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 24)
+            
+            // Selection summary
+            HStack {
+                Text("\(viewModel.selectedCount) item\(viewModel.selectedCount == 1 ? "" : "s") blocked")
+                    .font(.sansMedium(16))
+                    .foregroundColor(.softBlack)
+                
+                Spacer()
+                
+                Button(action: {
+                    HapticManager.shared.impact()
+                    showingAppPicker = true
+                }) {
+                    Text("Change")
+                        .font(.sansMedium(16))
+                        .foregroundColor(.primaryOrange)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .background(Color.white)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.borderColor.opacity(0.2), lineWidth: 1)
+            )
+            .paperShadow()
+            .padding(.horizontal, 24)
+        }
+        .padding(.bottom, 80)
+    }
+}
+
+// MARK: - Category Icon
+
+private struct CategoryIcon: View {
+    let systemName: String
+    let label: String
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: systemName)
+                .font(.system(size: 24))
+                .foregroundColor(.mutedForeground.opacity(0.7))
+                .frame(width: 44, height: 44)
+                .background(Color.mutedBackground)
+                .cornerRadius(12)
+            
+            Text(label)
+                .font(.sansTiny(10))
+                .foregroundColor(.mutedForeground.opacity(0.6))
         }
     }
 }

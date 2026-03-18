@@ -40,7 +40,7 @@ High-impact features that missed the MVP cut but are essential for retention.
 ### UI/UX Polish
 - [ ] **Loading State**: Polished launch animation.
 - [ ] **Focus Timer**: Subtle timer during focus mode to track session duration.
-- [ ] **Live Activities**: Lock screen widget showing current task and blocking status.
+- [x] **Live Activities**: Lock screen widget showing current task and blocking status. ✅
 
 ### Enhanced Blocking
 - [ ] **Strict Mode**: Option to disable the "Emergency Exit" or make it harder to cancel.
@@ -54,6 +54,8 @@ Expanding the feature set for power users.
 ### Advanced Task Management
 - [ ] **Task Resume/Pause**: Handle interruptions by splitting sessions.
 - [ ] **Focus Continuity**: "Focus Again" button for recurring tasks.
+- [ ] **Defer to Later**: Let users mark a task as "not now" so it is pre-filled the next time they open the app, turning abandonment into a deliberate recommitment.
+  Track defer count and suggestion timing so repeated deferrals can resurface later as a gentle prompt instead of feeling like the app is nagging on every launch.
 - [ ] **Smart Suggestions**: LLM-based task suggestions based on time of day/history.
 - [ ] **Task Decoration**: AI-generated backgrounds/icons for specific tasks.
 
@@ -65,4 +67,3 @@ Expanding the feature set for power users.
 ### Analytics & Social
 - [ ] **Rich History**: Charts showing focus time per day/week.
 - [ ] **Share Progress**: Social share images for completed tasks ("I just focused for 2 hours").
-

@@ -125,6 +125,15 @@ test_lane() {
     "$@"
 }
 
+strip_simulator_plugins() {
+  local app_bundle="${DERIVED_DATA_PATH}/Build/Products/Debug-iphonesimulator/${APP_SCHEME}.app"
+  local plugins_dir="${app_bundle}/PlugIns"
+
+  if [[ -d "${plugins_dir}" ]]; then
+    find "${plugins_dir}" -maxdepth 1 -name '*.appex' -exec rm -rf {} +
+  fi
+}
+
 run_build() {
   xcodebuild \
     -project "${PROJECT}" \
@@ -136,23 +145,28 @@ run_build() {
 
 run_unit() {
   build_lane "${UNIT_SCHEME}"
-  test_lane "${UNIT_SCHEME}"
+  strip_simulator_plugins
+  test_lane "${UNIT_SCHEME}" \
+    -parallel-testing-enabled NO
 }
 
 run_ui() {
   build_lane "${UI_SCHEME}"
+  strip_simulator_plugins
   test_lane "${UI_SCHEME}" \
     -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testOnboardingToFirstTaskCompletion
 }
 
 run_ui_restore() {
   build_lane "${UI_SCHEME}"
+  strip_simulator_plugins
   test_lane "${UI_SCHEME}" \
     -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testActiveSessionRestoresOnRelaunch
 }
 
 run_perf_ui() {
   build_lane "${UI_SCHEME}"
+  strip_simulator_plugins
   test_lane "${UI_SCHEME}" \
     -only-testing:EasyModeTest1UITests/EasyModeTest1UITestsLaunchPerformanceTests
 }

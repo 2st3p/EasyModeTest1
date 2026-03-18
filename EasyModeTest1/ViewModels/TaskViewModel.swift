@@ -25,6 +25,9 @@ final class TaskViewModel: ObservableObject {
     /// Reference to the shared ScreenTimeManager
     private let screenTimeManager = ScreenTimeManager.shared
     
+    /// Reference to the shared LiveActivityManager
+    private let liveActivityManager = LiveActivityManager.shared
+    
     init() {}
     
     /// Creates a new task with the provided text and marks it as in progress
@@ -57,6 +60,18 @@ final class TaskViewModel: ObservableObject {
             
             // Start app blocking for focus session
             startFocusBlocking(taskText: trimmedInput)
+
+            let liveActivityStartTime = newTask.timestamp
+            let isBlocking = screenTimeManager.hasSelectedApps
+            
+            // Start Live Activity to show task on Lock Screen
+            Task {
+                await liveActivityManager.startFocusActivity(
+                    taskText: trimmedInput,
+                    isBlocking: isBlocking,
+                    startTime: liveActivityStartTime
+                )
+            }
             
             taskInput = ""
         } catch {
@@ -77,6 +92,11 @@ final class TaskViewModel: ObservableObject {
             
             // End app blocking
             endFocusBlocking()
+            
+            // End Live Activity
+            Task {
+                await liveActivityManager.endFocusActivity(completed: true)
+            }
         } catch {
             throw TaskError.saveFailed(error.localizedDescription)
         }
@@ -94,6 +114,11 @@ final class TaskViewModel: ObservableObject {
             
             // End app blocking
             endFocusBlocking()
+            
+            // End Live Activity
+            Task {
+                await liveActivityManager.endFocusActivity(completed: false)
+            }
         } catch {
             throw TaskError.saveFailed(error.localizedDescription)
         }
