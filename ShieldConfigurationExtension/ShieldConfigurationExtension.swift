@@ -25,7 +25,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
 
     /// Provides the shield configuration for a blocked application
     override func configuration(shielding application: Application) -> ShieldConfiguration {
-        createShieldConfiguration(
+        return createShieldConfiguration(
             for: .application,
             blockedAppName: application.localizedDisplayName
         )
@@ -33,7 +33,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
 
     /// Provides the shield configuration for a blocked application in a category
     override func configuration(shielding application: Application, in category: ActivityCategory) -> ShieldConfiguration {
-        createShieldConfiguration(
+        return createShieldConfiguration(
             for: .application,
             blockedAppName: application.localizedDisplayName
         )
@@ -41,12 +41,12 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
 
     /// Provides the shield configuration for a blocked web domain
     override func configuration(shielding webDomain: WebDomain) -> ShieldConfiguration {
-        createShieldConfiguration(for: .webDomain)
+        return createShieldConfiguration(for: .webDomain)
     }
 
     /// Provides the shield configuration for a web domain in a category
     override func configuration(shielding webDomain: WebDomain, in category: ActivityCategory) -> ShieldConfiguration {
-        createShieldConfiguration(for: .webDomain)
+        return createShieldConfiguration(for: .webDomain)
     }
 
     // MARK: - Configuration Builder

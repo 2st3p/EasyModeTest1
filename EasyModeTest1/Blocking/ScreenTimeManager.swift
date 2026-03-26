@@ -129,8 +129,19 @@ final class ScreenTimeManager: ObservableObject {
             throw ScreenTimeError.authorizationFailed(error.localizedDescription)
         }
     }
+    /// Revokes and re-requests Screen Time authorization to refresh extension registration.
+    /// Call after an app delete/reinstall to force the system to re-register
+    /// extension identities with the FamilyControls subsystem.
+    func resetAuthorization() async throws {
+        try await withCheckedThrowingContinuation { continuation in
+            AuthorizationCenter.shared.revokeAuthorization { result in
+                continuation.resume(with: result)
+            }
+        }
+        try await requestAuthorization()
+    }
     #endif
-    
+
     // MARK: - Focus Session Control
     
     /// Starts a focus session - blocks selected apps
