@@ -20,6 +20,28 @@ EasyMode is a focused iOS application that helps users concentrate on a single t
 ./scripts/test.sh all
 ```
 
+### Physical device (Erik)
+Primary on-device test phone is an **iPhone 16 Pro**, renamed in Finder/Xcode as **iPod Nano** (nickname: ipod nano).
+
+| Field | Value |
+| --- | --- |
+| Xcode / `xctrace` name | `iPod Nano` |
+| UDID | `00008140-001244AC3062201C` |
+| Bundle ID | `name.erikkernan.EasyModeTest1` |
+
+`./scripts/test.sh build` targets a simulator. To build, install, and launch on this device from the repo root:
+
+```bash
+xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -configuration Debug \
+  -destination 'platform=iOS,id=00008140-001244AC3062201C' \
+  -derivedDataPath .build/ios-device-ipod build && \
+xcrun devicectl device install app --device 00008140-001244AC3062201C \
+  .build/ios-device-ipod/Build/Products/Debug-iphoneos/EasyModeTest1.app && \
+xcrun devicectl device process launch --device 00008140-001244AC3062201C name.erikkernan.EasyModeTest1
+```
+
+Refresh the UDID if you replace the phone: `xcrun xctrace list devices`.
+
 ## Architecture Context
 - **Main App**: SwiftUI/SwiftData app handling task management.
 - **Extensions**:
@@ -32,3 +54,4 @@ EasyMode is a focused iOS application that helps users concentrate on a single t
 - **SwiftLint**: Rules are defined in `.swiftlint.yml`.
 - **SwiftFormat**: Configuration in `.swiftformat`.
 - **Testing**: Use `Testing` framework for unit tests and `XCTest` for UI tests.
+- **UX Issues**: Track all UX, UI, and brand issues in [`UX_ISSUES.md`](./UX_ISSUES.md). Review periodically, update statuses, and route accepted items to the roadmap.

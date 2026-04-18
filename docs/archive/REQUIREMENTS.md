@@ -1,3 +1,5 @@
+> **ARCHIVED — 2026-04-18.** Early engineering requirements doc. Superseded by current code + `EasyModeTest1/ROADMAP.md`. Note: §4 "Scope: Storage only for V1" is **no longer true** — blocking via `DeviceActivity` + `ManagedSettings` is implemented. Kept for historical reference; do not update.
+
 # EasyMode Engineering Requirements & Specifications
 
 ## 1. Core Architecture & Tech Stack

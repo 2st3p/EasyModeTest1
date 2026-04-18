@@ -1,4 +1,6 @@
-# EasyModeTest1 Feature Spec (Current)
+> **ARCHIVED — 2026-04-18.** Superseded by `EasyModeTest1/ROADMAP.md` (phases, open work) and the live codebase (source-of-truth for current behavior). Kept for historical reference only. Do not update.
+
+# EasyModeTest1 Feature Spec (Archived snapshot)
 
 ## Overview
 - Single-task focus app with optional Screen Time blocking and a completion history log.

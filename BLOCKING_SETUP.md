@@ -4,10 +4,11 @@ This guide covers how to set up the Screen Time-based app blocking engine for Ea
 
 ## Overview
 
-The blocking engine uses three Apple frameworks:
+The blocking engine uses these Apple frameworks and targets:
 - **FamilyControls**: Authorization and app/category selection
 - **ManagedSettings**: Applying shields (blocks) to selected apps
 - **DeviceActivity**: Scheduling and persisting blocking across app termination
+- **ActivityKit** (via **`EasyModeLiveActivity`** widget extension): Lock Screen Live Activity for the current focus task
 
 ## Architecture
 
@@ -29,6 +30,12 @@ The blocking engine uses three Apple frameworks:
 │ (background         │ │ (customizes         │ │ (handles button     │
 │  persistence)       │ │  blocked UI)        │ │  taps)              │
 └─────────────────────┘ └─────────────────────┘ └─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │ EasyModeLiveActivity│
+                    │ (Lock Screen task)  │
+                    └─────────────────────┘
 ```
 
 ## Step 1: Apple Developer Setup
@@ -56,13 +63,15 @@ The blocking engine uses three Apple frameworks:
    - **Family Controls**
    - **App Groups** (select `group.com.easymode.shared`)
 
-### 2.2 Add Info.plist Keys
-Add these to your main app's `Info.plist`:
+### 2.2 Family Controls usage string (Info.plist)
+This repo’s main target uses **Generate Info Plist** (`GENERATE_INFOPLIST_FILE = YES`) and sets the string in **Build Settings** as `INFOPLIST_KEY_NSFamilyControlsUsageDescription`. If you edit `Info.plist` manually instead, add the equivalent key:
 
 ```xml
 <key>NSFamilyControlsUsageDescription</key>
 <string>EasyMode needs access to Screen Time to block distracting apps during your focus sessions.</string>
 ```
+
+Enable **Live Activities** on the main app target (`NSSupportsLiveActivities` / `INFOPLIST_KEY_NSSupportsLiveActivities`) so the `EasyModeLiveActivity` extension can run.
 
 ## Step 3: Create Extension Targets
 
@@ -99,14 +108,21 @@ Add these to your main app's `Info.plist`:
    - **Family Controls**
    - **App Groups** (same group)
 
-### 3.4 Add Shared Files to Extensions
-Add these files to **all extension targets**:
+### 3.4 Live Activity / Widget Extension (`EasyModeLiveActivity`)
+1. **File** → **New** → **Target** → **Widget Extension** (or the template Xcode offers for Live Activities for your SDK version).
+2. Name it: `EasyModeLiveActivity` (must match the existing folder / bundle in this repo).
+3. Wire the Swift sources under `EasyModeLiveActivity/` to this target.
+4. Add **App Groups** (same `group.com.easymode.shared` as the main app) if the widget reads shared state.
+5. Ensure the main app target has Live Activities enabled (see §2.2).
+
+### 3.5 Add Shared Files to Extensions
+Add these files to **all extension targets** that read cross-process state:
 - `Shared/SharedStorage.swift`
 
 ## Step 4: Update App Group Identifier
 
 If you used a different App Group identifier, update it in these files:
-- `Blocking/ScreenTimeManager.swift` → `appGroupIdentifier`
+- `EasyModeTest1/Blocking/ScreenTimeManager.swift` → `appGroupIdentifier`
 - `Shared/SharedStorage.swift` → `appGroupIdentifier`
 - `DeviceActivityMonitorExtension/DeviceActivityMonitorExtension.swift` → `appGroupIdentifier`
 - `ShieldConfigurationExtension/ShieldConfigurationExtension.swift` → `appGroupIdentifier`
@@ -119,6 +135,7 @@ Build targets in this order:
 2. DeviceActivityMonitorExtension
 3. ShieldConfigurationExtension
 4. ShieldActionExtension
+5. EasyModeLiveActivity
 
 ### 5.2 Testing on Device
 **Important**: Screen Time APIs only work on physical devices, not the Simulator.
@@ -126,7 +143,7 @@ Build targets in this order:
 1. Connect your iPhone
 2. Build and run on device
 3. Grant Screen Time permission when prompted
-4. Select apps to block in Settings tab
+4. Select apps to block in the Block tab (the tab bar may still label it **Settings** in some builds)
 5. Start a focus session
 6. Try to open a blocked app - you should see the shield
 
@@ -139,7 +156,7 @@ Build targets in this order:
 
 ### "Authorization Failed"
 - Ensure Family Controls capability is enabled in Developer Portal
-- Check that Info.plist has the usage description
+- Check that the Family Controls usage string is present (build setting `INFOPLIST_KEY_NSFamilyControlsUsageDescription` or `Info.plist`)
 - Verify signing with a valid provisioning profile
 
 ### "Shields Not Appearing"
@@ -169,8 +186,10 @@ EasyModeTest1/
 │   └── DeviceActivityMonitorExtension.swift
 ├── ShieldConfigurationExtension/
 │   └── ShieldConfigurationExtension.swift
-└── ShieldActionExtension/
-    └── ShieldActionExtension.swift
+├── ShieldActionExtension/
+│   └── ShieldActionExtension.swift
+└── EasyModeLiveActivity/
+    └── (Live Activity widget sources)
 ```
 
 ## Privacy Policy Requirement
@@ -180,15 +199,6 @@ Apple requires a privacy policy for apps using FamilyControls. Your policy shoul
 - How the data is used (locally for blocking, not transmitted)
 - How users can delete their data (clear settings, delete app)
 
-## Next Steps
+## Next steps
 
-After setup, you can enhance the blocking engine with:
-- [ ] Multiple blocking profiles (Deep Work, Light Work)
-- [ ] Pre-built app lists (Social Media, News, etc.)
-- [ ] Time-based scheduling
-- [ ] Notification suppression
-- [ ] Usage statistics and analytics
-
-
-
-
+Product direction, phased work, and UX backlog live in **`EasyModeTest1/ROADMAP.md`** (blocking engine items, App Store checklist, scheduled focus, pause/resume, and more). Use that file instead of duplicating a roadmap here.

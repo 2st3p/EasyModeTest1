@@ -1,3 +1,5 @@
+> **ARCHIVED — 2026-04-18.** Step-by-step implementation plan from Dec 2025. Most tasks have landed (SharedStorage tests, extension bundle checks, task lifecycle timestamps, deterministic UI hooks). Kept for historical reference. Current planning: `EasyModeTest1/ROADMAP.md`. Do not treat as an active checklist.
+
 # EasyMode Comprehensive Improvements Implementation Plan
 
 **Goal:** Ship a comprehensive set of organizational, performance, and code quality improvements (shared storage consistency, task lifecycle integrity, accurate blocking UI, and expanded tests).

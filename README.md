@@ -3,14 +3,15 @@ EasyModeTest1
 A SwiftUI iOS app to help you focus on one task at a time. Built with SwiftData and modern SwiftUI navigation.
 
 Features
-- Single-task focus flow with confetti celebration
-- SwiftData persistence for tasks and blocked apps
-- Block tab with optional System App Picker (FamilyControls) when available
-- Log tab listing completed tasks with delete and clear-all
+- Single-task focus flow with completion feedback (haptics, sound, and in-app completion visuals)
+- SwiftData persistence for focus tasks; Screen Time selections persisted via App Group shared storage
+- Block tab with optional System App Picker (`FamilyControls`) when available; simulator fallback when not
+- Live Activities showing the current focus task on the Lock Screen
+- Log tab listing completed tasks in reverse chronological order (delete / clear-all UI is on the roadmap)
 
 Requirements
-- iOS 17+
-- Xcode 15+
+- iOS **17.6+** (main app deployment target in the Xcode project)
+- Xcode **16+** (CI selects Xcode 16; older Xcode may not match the project file)
 
 Getting Started
 1. Open `EasyModeTest1.xcodeproj` in Xcode
@@ -24,7 +25,7 @@ Testing
 - `./scripts/test.sh perf-ui` runs the opt-in launch performance test.
 
 Notes
-- The `Block` tab uses a placeholder picker when `FamilyControls` is unavailable. On devices with Screen Time entitlements and FamilyControls, the System App Picker is used.
+- The Block tab uses a placeholder picker when `FamilyControls` is unavailable. On devices with Screen Time entitlements and FamilyControls, the System App Picker is used.
 - Only one active task is allowed at a time.
 
 Development
@@ -32,6 +33,4 @@ Development
 - Data models are defined with `@Model` in SwiftData
 
 Roadmap
-- Focus timer
-- Rich analytics in Log
-- Deeper Screen Time integrations
+- See [`EasyModeTest1/ROADMAP.md`](EasyModeTest1/ROADMAP.md) for phases, UX backlog, and upcoming work (scheduled focus, task pause/resume, App Store checklist).
