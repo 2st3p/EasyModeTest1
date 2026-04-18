@@ -55,3 +55,4 @@ Refresh the UDID if you replace the phone: `xcrun xctrace list devices`.
 - **SwiftFormat**: Configuration in `.swiftformat`.
 - **Testing**: Use `Testing` framework for unit tests and `XCTest` for UI tests.
 - **UX Issues**: Track all UX, UI, and brand issues in [`UX_ISSUES.md`](./UX_ISSUES.md). Review periodically, update statuses, and route accepted items to the roadmap.
+- **Design assets**: When shipping UI/icon/brand work, include **all** related binaries in git (e.g. `Design/AppIcon/*`, asset catalog PNGs, and any **reference/source PNGs** at repo root used to build icons — even if not linked in Xcode — so history and handoff stay complete).
