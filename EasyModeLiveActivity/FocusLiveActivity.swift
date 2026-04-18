@@ -22,7 +22,7 @@ struct FocusLiveActivity: Widget {
                     VStack(alignment: .leading, spacing: 4) {
                         Image(systemName: "birthday.cake.fill")
                             .font(.title)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(chartreuse)
                         Text(timerInterval: context.attributes.startTime...context.attributes.startTime.addingTimeInterval(86400), countsDown: false)
                             .font(.caption)
                             .fontWeight(.semibold)
@@ -45,7 +45,7 @@ struct FocusLiveActivity: Widget {
                     HStack(spacing: 8) {
                         Image(systemName: "birthday.cake.fill")
                             .font(.caption)
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(chartreuse)
                         Text(timerInterval: context.attributes.startTime...context.attributes.startTime.addingTimeInterval(86400), countsDown: false)
                             .font(.subheadline)
                             .fontWeight(.semibold)
@@ -56,7 +56,7 @@ struct FocusLiveActivity: Widget {
             } compactLeading: {
                 Image(systemName: "birthday.cake.fill")
                     .font(.body)
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(chartreuse)
             } compactTrailing: {
                 HStack(spacing: 4) {
                     Text(timerInterval: context.attributes.startTime...context.attributes.startTime.addingTimeInterval(86400), countsDown: false)
@@ -71,7 +71,7 @@ struct FocusLiveActivity: Widget {
                 }
             } minimal: {
                 Image(systemName: "birthday.cake.fill")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(chartreuse)
             }
         }
     }
@@ -82,6 +82,7 @@ struct FocusLiveActivity: Widget {
 private let primaryTextColor = Color(red: 0.1, green: 0.1, blue: 0.1)
 private let secondaryTextColor = Color(red: 0.25, green: 0.25, blue: 0.25)
 private let cardBackgroundColor = Color(white: 0.96)
+private let chartreuse = Color(red: 0.541, green: 0.788, blue: 0.149) // #8AC926
 
 // MARK: - Blocking Status Badge
 
@@ -117,13 +118,13 @@ struct LockScreenView: View {
             // Leading icon badge - cake icon
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.orange.opacity(0.3))
+                    .fill(chartreuse.opacity(0.3))
                     .frame(width: 52, height: 52)
 
                 Image(systemName: "birthday.cake.fill")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(Color.orange)
+                    .foregroundStyle(chartreuse)
             }
 
             // Task text and timer

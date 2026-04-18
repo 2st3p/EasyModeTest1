@@ -50,8 +50,8 @@ extension View {
 struct iOSButtonStyle: ButtonStyle {
     let backgroundColor: Color
     let foregroundColor: Color
-    
-    init(backgroundColor: Color = .primaryOrange, foregroundColor: Color = .white) {
+
+    init(backgroundColor: Color = .primaryChartreuse, foregroundColor: Color = .softBlack) {
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
     }

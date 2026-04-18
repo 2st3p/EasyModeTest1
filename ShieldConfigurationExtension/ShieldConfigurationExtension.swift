@@ -83,7 +83,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
                 text: content.primaryButtonLabel,
                 color: .white
             ),
-            primaryButtonBackgroundColor: UIColor(red: 0.95, green: 0.55, blue: 0.25, alpha: 1.0), // Primary orange
+            primaryButtonBackgroundColor: UIColor(red: 0.541, green: 0.788, blue: 0.149, alpha: 1.0), // Chartreuse #8AC926
             secondaryButtonLabel: nil // No secondary button - strict blocking
         )
     }

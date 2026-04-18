@@ -16,7 +16,9 @@ struct TaskEntryView: View {
     let onSubmit: () -> Void
     /// Focus state for the text field
     @FocusState private var isTextFieldFocused: Bool
-    
+    /// Counter for debounced haptic feedback
+    @State private var hapticCounter = 0
+
     private let maxLength = 90
     private var isInputValid: Bool {
         !taskInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -30,7 +32,7 @@ struct TaskEntryView: View {
         var middle = AttributedString("accomplish")
         middle.font = .serifTitle(36)
         middle.foregroundColor = .softBlack
-        middle.backgroundColor = Color.primaryOrange.opacity(0.15)
+        middle.backgroundColor = Color.primaryChartreuse.opacity(0.15)
         
         var end = AttributedString(" next?")
         end.font = .serifTitle(36)
@@ -54,8 +56,8 @@ struct TaskEntryView: View {
                         .fixedSize(horizontal: false, vertical: true) // Ensure it wraps
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 32)
-                .padding(.top, 64)
+                .padding(.horizontal, Layout.horizontalPadding)
+                .padding(.top, Layout.headerTop)
                 
                 Spacer()
                 
@@ -72,7 +74,7 @@ struct TaskEntryView: View {
                         )
                             .font(.serifLarge(28))
                             .foregroundColor(.softBlack)
-                            .tint(.primaryOrange)
+                            .tint(.primaryChartreuse)
                             .focused($isTextFieldFocused)
                             .submitLabel(.done)
                             .accessibilityIdentifier("task.input")
@@ -92,9 +94,16 @@ struct TaskEntryView: View {
                                 alignment: .bottom
                             )
                             .onChange(of: taskInput) { oldValue, newValue in
-                                // Haptic feedback on typing
+                                // Debounced haptic feedback every 4 characters
                                 if newValue.count > oldValue.count {
-                                    HapticManager.shared.selection()
+                                    hapticCounter += 1
+                                    if hapticCounter >= 4 {
+                                        HapticManager.shared.selection()
+                                        hapticCounter = 0
+                                    }
+                                } else if newValue.count < oldValue.count {
+                                    // Reset counter when deleting
+                                    hapticCounter = 0
                                 }
                                 // Limit to maxLength (enforced but not displayed)
                                 if newValue.count > maxLength {
@@ -106,11 +115,11 @@ struct TaskEntryView: View {
                                 isTextFieldFocused = false
                             }
                     }
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, Layout.horizontalPadding)
                 }
-                
+
                 Spacer()
-                
+
                 // Start Focus button
                 if isInputValid {
                     Button(action: {
@@ -123,13 +132,13 @@ struct TaskEntryView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(Color.primaryOrange)
+                            .background(Color.primaryChartreuse)
                             .cornerRadius(999)
                             .paperShadow()
                     }
                     .buttonStyle(.plain)
                     .accessibilityIdentifier("task.start")
-                    .padding(.horizontal, 32)
+                    .padding(.horizontal, Layout.horizontalPadding)
                     .padding(.bottom, 32)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }

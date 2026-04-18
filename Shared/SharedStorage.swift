@@ -72,15 +72,22 @@ enum ShieldContentBuilder {
 enum SharedStorageKey: String {
     /// The user's app selection for blocking
     case appSelection = "EasyMode.SelectedApps"
-    
+
     /// The current task text being focused on
     case currentTask = "EasyMode.CurrentTask"
-    
+
     /// Whether a focus session is currently active
     case isFocusActive = "EasyMode.IsFocusActive"
-    
+
     /// Timestamp when the current focus session started
     case focusStartTime = "EasyMode.FocusStartTime"
+
+    /// Whether the user has completed onboarding (backup of UserDefaults.standard)
+    case hasCompletedOnboarding = "EasyMode.HasCompletedOnboarding"
+
+    /// Whether to auto-show the Screen Time permissions prompt.
+    /// Set to false after onboarding completes so the sheet never reappears.
+    case shouldAutoPromptForPermissions = "EasyMode.ShouldAutoPromptForPermissions"
 }
 
 /// Provides shared storage access across app and extensions
@@ -184,12 +191,65 @@ final class SharedStorage {
     #endif
     
     // MARK: - Utilities
-    
+
     /// Clears all shared storage (for debugging/reset)
     func clearAll() {
         for key in SharedStorageKey.allCases {
             defaults.removeObject(forKey: key.rawValue)
         }
+    }
+
+    // MARK: - Onboarding State
+
+    /// Whether onboarding has been completed (App Group only).
+    /// For launch gating, use `mergeOnboardingCompletionFromAllStores()` then read
+    /// `UserDefaults.standard` key `hasCompletedOnboarding` or `@AppStorage` — those stay aligned after merge.
+    func hasCompletedOnboarding() -> Bool {
+        defaults.bool(forKey: SharedStorageKey.hasCompletedOnboarding.rawValue)
+    }
+
+    /// Persists the onboarding completion flag to the App Group.
+    /// Call `mergeOnboardingCompletionFromAllStores()` after this (or from app completion) so
+    /// `UserDefaults.standard` matches `@AppStorage("hasCompletedOnboarding")`.
+    func setHasCompletedOnboarding(_ completed: Bool) {
+        defaults.set(completed, forKey: SharedStorageKey.hasCompletedOnboarding.rawValue)
+    }
+
+    /// Keeps App Group and `UserDefaults.standard` (`@AppStorage("hasCompletedOnboarding")`) in sync.
+    /// Either store may have been written first; after merge, both reflect completion if *either* was true.
+    func mergeOnboardingCompletionFromAllStores() {
+        let groupComplete = defaults.bool(forKey: SharedStorageKey.hasCompletedOnboarding.rawValue)
+        let standardComplete = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+        guard groupComplete || standardComplete else { return }
+        if groupComplete, !standardComplete {
+            UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        }
+        if standardComplete, !groupComplete {
+            defaults.set(true, forKey: SharedStorageKey.hasCompletedOnboarding.rawValue)
+        }
+        // Legacy installs completed onboarding before `shouldAutoPromptForPermissions` existed.
+        // A missing key used to mean "auto-prompt every launch" (see shouldAutoPromptForPermissions).
+        let autoPromptKeyPresent =
+            defaults.object(forKey: SharedStorageKey.shouldAutoPromptForPermissions.rawValue) != nil
+        if !autoPromptKeyPresent {
+            setShouldAutoPromptForPermissions(false)
+        }
+    }
+
+    /// Whether to auto-prompt for Screen Time permissions from **AppTabView** on launch.
+    /// Screen Time permission during first-run onboarding is handled inside `OnboardingView`, not here.
+    /// A **missing** key must read as **false**: legacy installs otherwise hit `nil || …` and got `true`,
+    /// which re-opened the permissions sheet every cold launch when authorization was still denied.
+    func shouldAutoPromptForPermissions() -> Bool {
+        guard defaults.object(forKey: SharedStorageKey.shouldAutoPromptForPermissions.rawValue) != nil else {
+            return false
+        }
+        return defaults.bool(forKey: SharedStorageKey.shouldAutoPromptForPermissions.rawValue)
+    }
+
+    /// Sets whether to auto-prompt for Screen Time permissions
+    func setShouldAutoPromptForPermissions(_ shouldPrompt: Bool) {
+        defaults.set(shouldPrompt, forKey: SharedStorageKey.shouldAutoPromptForPermissions.rawValue)
     }
 }
 

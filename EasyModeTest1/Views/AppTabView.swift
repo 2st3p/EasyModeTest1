@@ -36,7 +36,7 @@ struct AppTabView: View {
                 .tag(2)
         }
         .accessibilityIdentifier("tabs.root")
-        .tint(.primaryOrange)
+        .tint(.primaryChartreuse)
         .onAppear {
             configureTabBarAppearance()
         }
@@ -80,11 +80,11 @@ struct AppTabView: View {
             .font: UIFont.systemFont(ofSize: 10, weight: .medium)
         ]
         
-        // Selected state - using the RGB values directly
-        let primaryOrangeUIColor = UIColor(red: 0.988, green: 0.647, blue: 0.063, alpha: 1.0)
-        appearance.stackedLayoutAppearance.selected.iconColor = primaryOrangeUIColor
+        // Selected state - chartreuse accent
+        let primaryChartreuseUIColor = UIColor(red: 0.541, green: 0.788, blue: 0.149, alpha: 1.0)
+        appearance.stackedLayoutAppearance.selected.iconColor = primaryChartreuseUIColor
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: primaryOrangeUIColor,
+            .foregroundColor: primaryChartreuseUIColor,
             .font: UIFont.systemFont(ofSize: 10, weight: .medium)
         ]
         
@@ -103,8 +103,10 @@ struct AppTabView: View {
         #else
         await screenTimeManager.checkAuthorizationStatus()
         hasResolvedAuthorization = true
-        // Only show prompt if authorization check is complete and user is not authorized
-        shouldShowPermissionsPrompt = !screenTimeManager.isAuthorized
+        // Only auto-prompt if user hasn't completed onboarding (which sets this to false).
+        // After onboarding, the user can request permissions explicitly from the Settings tab.
+        let shouldAutoPrompt = SharedStorage.shared.shouldAutoPromptForPermissions()
+        shouldShowPermissionsPrompt = shouldAutoPrompt && !screenTimeManager.isAuthorized
         #endif
     }
 
@@ -114,8 +116,9 @@ struct AppTabView: View {
         shouldShowPermissionsPrompt = false
         #else
         await screenTimeManager.checkAuthorizationStatus()
-        // Only update the prompt state, don't modify hasResolvedAuthorization
-        shouldShowPermissionsPrompt = !screenTimeManager.isAuthorized
+        // Same gate: don't re-prompt after onboarding
+        let shouldAutoPrompt = SharedStorage.shared.shouldAutoPromptForPermissions()
+        shouldShowPermissionsPrompt = shouldAutoPrompt && !screenTimeManager.isAuthorized
         #endif
     }
 }

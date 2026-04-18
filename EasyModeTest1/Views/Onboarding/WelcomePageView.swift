@@ -28,12 +28,12 @@ struct WelcomePageView: View {
                 // App icon/logo placeholder
                 ZStack {
                     Circle()
-                        .fill(Color.primaryOrange.opacity(0.1))
+                        .fill(Color.primaryChartreuse.opacity(0.1))
                         .frame(width: 100, height: 100)
                     
                     Image(systemName: "target")
                         .font(.system(size: 44, weight: .medium))
-                        .foregroundColor(.primaryOrange)
+                        .foregroundColor(.primaryChartreuse)
                 }
                 .scaleEffect(showTitle ? 1 : 0.5)
                 .opacity(showTitle ? 1 : 0)
@@ -103,7 +103,7 @@ struct WelcomePageView: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(Color.primaryOrange)
+                    .background(Color.primaryChartreuse)
                     .cornerRadius(999)
                     .paperShadow()
             }
@@ -145,7 +145,7 @@ struct FeatureRow: View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundColor(.primaryOrange)
+                .foregroundColor(.primaryChartreuse)
                 .frame(width: 32)
             
             Text(text)

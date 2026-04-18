@@ -25,8 +25,8 @@ struct BlockView: View {
                     .foregroundColor(.softBlack)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 24)
-            .padding(.top, 48)
+            .padding(.horizontal, Layout.horizontalPadding)
+            .padding(.top, Layout.headerTop)
             .padding(.bottom, 24)
             
             ScrollView {
@@ -130,14 +130,14 @@ struct BlockView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(Color.primaryOrange)
+                .background(Color.primaryChartreuse)
                 .cornerRadius(999)
                 .paperShadow()
             }
             .buttonStyle(.plain)
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Layout.horizontalPadding)
         }
-        .padding(.bottom, 80)
+        .padding(.bottom, Layout.tabBarPadding)
     }
     
     // MARK: - Non-Empty State
@@ -167,7 +167,7 @@ struct BlockView: View {
                 }) {
                     Text("Change")
                         .font(.sansMedium(16))
-                        .foregroundColor(.primaryOrange)
+                        .foregroundColor(.primaryChartreuse)
                 }
                 .buttonStyle(.plain)
             }
@@ -180,9 +180,9 @@ struct BlockView: View {
                     .stroke(Color.borderColor.opacity(0.2), lineWidth: 1)
             )
             .paperShadow()
-            .padding(.horizontal, 24)
+            .padding(.horizontal, Layout.horizontalPadding)
         }
-        .padding(.bottom, 80)
+        .padding(.bottom, Layout.tabBarPadding)
     }
 }
 

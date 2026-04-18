@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import UIKit
 #if canImport(FamilyControls)
 import FamilyControls
 #endif
@@ -27,6 +28,9 @@ struct PermissionsPageView: View {
     
     /// Error message to display
     @State private var errorMessage: String?
+
+    /// Whether to show "Open Settings" button (for denied permissions)
+    @State private var showOpenSettingsButton = false
     
     /// Animation states
     @State private var showContent = false
@@ -111,7 +115,17 @@ struct PermissionsPageView: View {
                     .foregroundColor(.destructive)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
-                    .padding(.bottom, 16)
+                    .padding(.bottom, 8)
+            }
+
+            // Open Settings button (shown when permission is denied)
+            if showOpenSettingsButton {
+                Button(action: openSettings) {
+                    Text("Open Settings")
+                        .font(.sansMedium(16))
+                        .foregroundColor(.primaryChartreuse)
+                }
+                .padding(.bottom, 16)
             }
             
             // Grant permission button
@@ -130,7 +144,7 @@ struct PermissionsPageView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(Color.primaryOrange)
+                .background(Color.primaryChartreuse)
                 .cornerRadius(999)
                 .paperShadow()
             }
@@ -160,6 +174,13 @@ struct PermissionsPageView: View {
     private func animateIn() {
         withAnimation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.2)) {
             showContent = true
+        }
+    }
+
+    private func openSettings() {
+        HapticManager.shared.selection()
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
         }
     }
     
@@ -199,6 +220,7 @@ struct PermissionsPageView: View {
                     isRequesting = false
                     HapticManager.shared.error()
                     errorMessage = "Permission denied. Please enable in Settings > Screen Time."
+                    showOpenSettingsButton = true
                 }
             }
         }

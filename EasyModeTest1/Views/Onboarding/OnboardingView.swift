@@ -87,7 +87,7 @@ struct OnboardingProgressView: View {
         HStack(spacing: 8) {
             ForEach(OnboardingPage.allCases, id: \.rawValue) { page in
                 Capsule()
-                    .fill(page.rawValue <= currentPage.rawValue ? Color.primaryOrange : Color.borderColor.opacity(0.3))
+                    .fill(page.rawValue <= currentPage.rawValue ? Color.primaryChartreuse : Color.borderColor.opacity(0.3))
                     .frame(height: 3)
                     .animation(.spring(response: 0.4), value: currentPage)
             }

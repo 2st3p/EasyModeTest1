@@ -20,7 +20,9 @@ struct TaskView: View {
     @Query(filter: #Predicate<Item> { $0.isInProgress }) private var activeTasks: [Item]
     /// ViewModel for task operations
     @StateObject private var viewModel = TaskViewModel()
-    
+    /// Persisted draft input to survive tab switches
+    @AppStorage("draftTaskInput") private var draftTaskInput: String = ""
+
     var body: some View {
         ZStack {
             if let activeTask = activeTasks.first {
@@ -48,12 +50,29 @@ struct TaskView: View {
         } message: {
             Text(viewModel.errorMessage ?? "An unknown error occurred")
         }
+        .alert("No Apps Selected", isPresented: $viewModel.showNoAppsWarning) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Your task is active, but no apps are blocked. Select apps in the Settings tab to enable blocking.")
+        }
+        .onAppear {
+            // Restore draft input on appear (survives tab switches)
+            if viewModel.taskInput.isEmpty && !activeTasks.isEmpty == false {
+                viewModel.taskInput = draftTaskInput
+            }
+        }
+        .onChange(of: viewModel.taskInput) { _, newValue in
+            // Save draft input for tab switch recovery
+            draftTaskInput = newValue
+        }
     }
     
     /// Creates a new task with the provided text and marks it as in progress
     private func createTask() {
         do {
             try viewModel.createTask(from: activeTasks, using: modelContext)
+            // Clear draft after successful task creation
+            draftTaskInput = ""
         } catch {
             viewModel.handleError(error)
         }

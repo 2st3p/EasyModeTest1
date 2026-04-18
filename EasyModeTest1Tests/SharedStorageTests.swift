@@ -96,6 +96,30 @@ struct SharedStorageTests {
     }
 
     @Test @MainActor
+    func mergeOnboardingCompletion_copiesFromStandardIntoSuite() throws {
+        let suiteName = "SharedStorageTests.mergeOnboarding"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+
+        let hadStandardKey = UserDefaults.standard.object(forKey: "hasCompletedOnboarding") != nil
+        let priorStandardValue = hadStandardKey ? UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") : false
+        defer {
+            if hadStandardKey {
+                UserDefaults.standard.set(priorStandardValue, forKey: "hasCompletedOnboarding")
+            } else {
+                UserDefaults.standard.removeObject(forKey: "hasCompletedOnboarding")
+            }
+        }
+
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+
+        let storage = SharedStorage(defaults: defaults)
+        storage.mergeOnboardingCompletionFromAllStores()
+
+        #expect(storage.hasCompletedOnboarding())
+    }
+
+    @Test @MainActor
     func clearAll_removesAllSessionKeys() throws {
         let suiteName = "SharedStorageTests.clearAll"
         let defaults = UserDefaults(suiteName: suiteName)!

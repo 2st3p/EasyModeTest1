@@ -27,7 +27,7 @@ struct ActiveTaskView: View {
             // Completion ripple effect
             if isCompleting {
                 Circle()
-                    .fill(Color.primaryOrange)
+                    .fill(Color.primaryChartreuse)
                     .frame(width: 256, height: 256)
                     .scaleEffect(rippleScale)
                     .opacity(rippleOpacity)
@@ -56,7 +56,7 @@ struct ActiveTaskView: View {
                 Button(action: handleComplete) {
                     Image(systemName: "checkmark")
                         .font(.system(size: 32, weight: .medium))
-                        .foregroundColor(.primaryOrange)
+                        .foregroundColor(.primaryChartreuse)
                         .frame(width: 80, height: 80)
                         .background(Color.white)
                         .clipShape(Circle())
@@ -87,7 +87,7 @@ struct ActiveTaskView: View {
                 Button(action: { showCancelAlert = true }) {
                     Text("Give Up")
                         .font(.sansSmall(12))
-                        .foregroundColor(.mutedForeground.opacity(0.5))
+                        .foregroundColor(.mutedForeground.opacity(0.7))
                 }
                 .buttonStyle(.plain)
                 .padding(.bottom, 48)

@@ -31,8 +31,8 @@ struct LogView: View {
                     .foregroundColor(.mutedForeground)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 24)
-            .padding(.top, 48)
+            .padding(.horizontal, Layout.horizontalPadding)
+            .padding(.top, Layout.headerTop)
             .padding(.bottom, 24)
             
             // Content
@@ -48,7 +48,7 @@ struct LogView: View {
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(.white)
                                     .frame(width: 24, height: 24)
-                                    .background(Color.green.opacity(0.8))
+                                    .background(Color.success.opacity(0.8))
                                     .clipShape(Circle())
                                     .padding(.top, 2)
                                 
@@ -66,7 +66,7 @@ struct LogView: View {
                                 
                                 Spacer()
                             }
-                            .padding(.horizontal, 24)
+                            .padding(.horizontal, Layout.horizontalPadding)
                             .padding(.vertical, 24)
                             .background(
                                 Rectangle()
@@ -75,7 +75,7 @@ struct LogView: View {
                             )
                         }
                     }
-                    .padding(.bottom, 80) // Space for tab bar
+                    .padding(.bottom, Layout.tabBarPadding) // Space for tab bar
                 }
             }
         }
@@ -91,7 +91,7 @@ struct LogView: View {
         VStack {
             Text("\"The journey of a thousand miles begins with a single step.\"")
                 .font(.serifBody(18))
-                .foregroundColor(.mutedForeground.opacity(0.3))
+                .foregroundColor(.mutedForeground.opacity(0.5))
                 .italic()
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 24)

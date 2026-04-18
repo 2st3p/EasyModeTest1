@@ -51,12 +51,12 @@ struct AppSelectionPageView: View {
                 // Apps icon
                 ZStack {
                     Circle()
-                        .fill(Color.primaryOrange.opacity(0.1))
+                        .fill(Color.primaryChartreuse.opacity(0.1))
                         .frame(width: 100, height: 100)
                     
                     Image(systemName: "square.grid.2x2.fill")
                         .font(.system(size: 44, weight: .medium))
-                        .foregroundColor(.primaryOrange)
+                        .foregroundColor(.primaryChartreuse)
                 }
                 .scaleEffect(showContent ? 1 : 0.5)
                 .opacity(showContent ? 1 : 0)
@@ -111,7 +111,7 @@ struct AppSelectionPageView: View {
                 if selectedAppsCount > 0 {
                     Text("\(selectedAppsCount) item\(selectedAppsCount == 1 ? "" : "s") selected")
                         .font(.sansSmall(14))
-                        .foregroundColor(.primaryOrange)
+                        .foregroundColor(.primaryChartreuse)
                         .transition(.opacity)
                 }
             }
@@ -133,7 +133,7 @@ struct AppSelectionPageView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
-                .background(selectedAppsCount > 0 ? Color.primaryOrange : Color.mutedForeground)
+                .background(selectedAppsCount > 0 ? Color.primaryChartreuse : Color.mutedForeground)
                 .cornerRadius(999)
                 .paperShadow()
             }
@@ -207,9 +207,9 @@ struct SimulatorAppPicker: View {
                             HStack(spacing: 12) {
                                 Image(systemName: app.1)
                                     .font(.system(size: 18))
-                                    .foregroundColor(isSelected ? .primaryOrange : .mutedForeground)
+                                    .foregroundColor(isSelected ? .primaryChartreuse : .mutedForeground)
                                     .frame(width: 36, height: 36)
-                                    .background(isSelected ? Color.primaryOrange.opacity(0.1) : Color.mutedBackground)
+                                    .background(isSelected ? Color.primaryChartreuse.opacity(0.1) : Color.mutedBackground)
                                     .cornerRadius(8)
                                 
                                 Text(app.0)
@@ -220,11 +220,11 @@ struct SimulatorAppPicker: View {
                                 
                                 ZStack {
                                     Circle()
-                                        .fill(isSelected ? Color.primaryOrange : Color.clear)
+                                        .fill(isSelected ? Color.primaryChartreuse : Color.clear)
                                         .frame(width: 24, height: 24)
                                     
                                     Circle()
-                                        .stroke(isSelected ? Color.primaryOrange : Color.borderColor.opacity(0.3), lineWidth: 2)
+                                        .stroke(isSelected ? Color.primaryChartreuse : Color.borderColor.opacity(0.3), lineWidth: 2)
                                         .frame(width: 24, height: 24)
                                     
                                     if isSelected {

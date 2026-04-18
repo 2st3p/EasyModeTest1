@@ -21,6 +21,9 @@ final class TaskViewModel: ObservableObject {
     
     /// Whether an error alert should be shown
     @Published var showError: Bool = false
+
+    /// Whether to show warning when no apps are selected for blocking
+    @Published var showNoAppsWarning: Bool = false
     
     /// Reference to the shared ScreenTimeManager
     private let screenTimeManager = ScreenTimeManager.shared
@@ -128,8 +131,11 @@ final class TaskViewModel: ObservableObject {
     
     /// Starts blocking selected apps for the focus session
     private func startFocusBlocking(taskText: String) {
-        // Only block if there are apps selected
-        guard screenTimeManager.hasSelectedApps else { return }
+        // Warn user if no apps selected (but still allow task creation)
+        guard screenTimeManager.hasSelectedApps else {
+            showNoAppsWarning = true
+            return
+        }
         
         do {
             try screenTimeManager.startFocusSession(taskText: taskText)
