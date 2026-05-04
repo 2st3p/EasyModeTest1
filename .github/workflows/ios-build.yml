@@ -24,6 +24,8 @@ jobs:
       - name: Prepare test runner
         run: chmod +x scripts/test.sh
       - name: Unit tests
+        env:
+          STRIP_SIMULATOR_PLUGINS_FOR_UNIT: "1"
         run: ./scripts/test.sh unit
       - name: UI regressions
         run: ./scripts/test.sh ui
