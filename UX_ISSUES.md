@@ -1,6 +1,6 @@
 # UX Issues Log
 
-> **2026-04-18 cleanup.** All **open** UX issues have been grouped into themed "single-pass" buckets in `EasyModeTest1/ROADMAP.md` (see *UX Polish Backlog*). This file is retained as:
+> **2026-04-18 cleanup.** All **open** UX issues have been grouped into themed "single-pass" buckets in `Easymode/ROADMAP.md` (see *UX Polish Backlog*). This file is retained as:
 > 1. A **fix log** — historical record of shipped UX work (section A below).
 > 2. A **discovery inbox** — quick scratchpad for newly noticed issues (section B below). Move triaged items into the roadmap; do not let this file grow back into a parallel backlog.
 >

@@ -1,7 +1,7 @@
 # AGENTS.md
 
 ## Project Overview
-EasyMode is a focused iOS application that helps users concentrate on a single task by blocking distracting apps using Apple's Screen Time (FamilyControls) API.
+Easymode is a focused iOS application that helps users concentrate on a single task by blocking distracting apps using Apple's Screen Time (FamilyControls) API.
 
 ## Build and Test Commands
 
@@ -27,17 +27,17 @@ Primary on-device test phone is an **iPhone 16 Pro**, renamed in Finder/Xcode as
 | --- | --- |
 | Xcode / `xctrace` name | `iPod Nano` |
 | UDID | `00008140-001244AC3062201C` |
-| Bundle ID | `name.erikkernan.EasyModeTest1` |
+| Bundle ID | `name.erikkernan.easymode` |
 
 `./scripts/test.sh build` targets a simulator. To build, install, and launch on this device from the repo root:
 
 ```bash
-xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -configuration Debug \
+xcodebuild -project easy-mode.xcodeproj -scheme Easymode -configuration Debug \
   -destination 'platform=iOS,id=00008140-001244AC3062201C' \
   -derivedDataPath .build/ios-device-ipod build && \
 xcrun devicectl device install app --device 00008140-001244AC3062201C \
-  .build/ios-device-ipod/Build/Products/Debug-iphoneos/EasyModeTest1.app && \
-xcrun devicectl device process launch --device 00008140-001244AC3062201C name.erikkernan.EasyModeTest1
+  .build/ios-device-ipod/Build/Products/Debug-iphoneos/Easymode.app && \
+xcrun devicectl device process launch --device 00008140-001244AC3062201C name.erikkernan.easymode
 ```
 
 Refresh the UDID if you replace the phone: `xcrun xctrace list devices`.
@@ -49,6 +49,16 @@ Refresh the UDID if you replace the phone: `xcrun xctrace list devices`.
   - `ShieldConfigurationExtension`: Customizes the "App Blocked" UI.
   - `ShieldActionExtension`: Handles button taps on the shield.
 - **Shared**: `Shared/SharedStorage.swift` uses App Groups (`group.com.easymode.shared`) for cross-process communication.
+
+## Apple Developer (identifiers & signing)
+
+After bundle ID changes, register identifiers and capabilities in the Developer Portal using the exact IDs from the Xcode project:
+
+```bash
+./scripts/list-apple-bundle-ids.sh
+```
+
+Step-by-step checklist: [`docs/APPLE_DEVELOPER.md`](./docs/APPLE_DEVELOPER.md).
 
 ## Development Guidelines
 - **SwiftLint**: Rules are defined in `.swiftlint.yml`.

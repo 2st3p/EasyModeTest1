@@ -1,4 +1,4 @@
-EasyModeTest1
+**Easymode** (Xcode project: `easy-mode`)
 
 A SwiftUI iOS app to help you focus on one task at a time. Built with SwiftData and modern SwiftUI navigation.
 
@@ -14,8 +14,8 @@ Requirements
 - Xcode **16+** (CI selects Xcode 16; older Xcode may not match the project file)
 
 Getting Started
-1. Open `EasyModeTest1.xcodeproj` in Xcode
-2. Select the `EasyModeTest1` target and run on a simulator or device
+1. Open `easy-mode.xcodeproj` in Xcode
+2. Select the `Easymode` target and run on a simulator or device
 
 Testing
 - `./scripts/test.sh build` builds the app on an available iPhone simulator.
@@ -33,4 +33,4 @@ Development
 - Data models are defined with `@Model` in SwiftData
 
 Roadmap
-- See [`EasyModeTest1/ROADMAP.md`](EasyModeTest1/ROADMAP.md) for phases, UX backlog, and upcoming work (scheduled focus, task pause/resume, App Store checklist).
+- See [`Easymode/ROADMAP.md`](Easymode/ROADMAP.md) for phases, UX backlog, and upcoming work (scheduled focus, task pause/resume, App Store checklist).

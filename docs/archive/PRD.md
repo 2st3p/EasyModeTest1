@@ -1,4 +1,4 @@
-> **ARCHIVED — 2026-04-18.** Original product brief / PRD. Anything still outstanding has been folded into `EasyModeTest1/ROADMAP.md`. Kept for historical reference; do not update.
+> **ARCHIVED — 2026-04-18.** Original product brief / PRD. Anything still outstanding has been folded into `Easymode/ROADMAP.md`. Kept for historical reference; do not update.
 
 # Brief
 

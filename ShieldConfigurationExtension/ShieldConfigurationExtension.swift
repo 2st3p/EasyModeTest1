@@ -51,7 +51,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
 
     // MARK: - Configuration Builder
 
-    /// Creates the shield configuration with EasyMode branding
+    /// Creates the shield configuration with Easymode branding
     private func createShieldConfiguration(
         for context: ShieldContentContext,
         blockedAppName: String? = nil
@@ -62,7 +62,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
             context: context
         )
 
-        // EasyMode brand colors (matching the app's parchment/warm theme)
+        // Easymode brand colors (matching the app's parchment/warm theme)
         let backgroundColor = UIColor(red: 0.98, green: 0.96, blue: 0.93, alpha: 1.0) // Warm parchment
         let primaryColor = UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0)    // Soft black
         let secondaryColor = UIColor(red: 0.45, green: 0.45, blue: 0.45, alpha: 1.0)  // Muted gray

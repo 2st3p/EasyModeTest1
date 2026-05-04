@@ -1,6 +1,6 @@
 //
 //  SharedStorage.swift
-//  EasyModeTest1
+//  Easymode
 //
 //  Shared storage utilities for communication between the main app and extensions.
 //  Uses App Groups to share data across processes.

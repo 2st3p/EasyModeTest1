@@ -1,6 +1,6 @@
 # App Blocking Engine Setup Guide
 
-This guide covers how to set up the Screen Time-based app blocking engine for EasyMode.
+This guide covers how to set up the Screen Time-based app blocking engine for Easymode.
 
 ## Overview
 
@@ -40,6 +40,8 @@ The blocking engine uses these Apple frameworks and targets:
 
 ## Step 1: Apple Developer Setup
 
+For a concrete list of bundle IDs and which capabilities each target needs (especially after renaming the app), run `./scripts/list-apple-bundle-ids.sh` and follow [`docs/APPLE_DEVELOPER.md`](docs/APPLE_DEVELOPER.md).
+
 ### 1.1 Enable Screen Time API
 1. Go to [Apple Developer Portal](https://developer.apple.com)
 2. Navigate to **Certificates, Identifiers & Profiles** → **Identifiers**
@@ -57,7 +59,7 @@ The blocking engine uses these Apple frameworks and targets:
 
 ### 2.1 Main App Capabilities
 1. Open your project in Xcode
-2. Select the **EasyModeTest1** target
+2. Select the **Easymode** target
 3. Go to **Signing & Capabilities** tab
 4. Click **+ Capability** and add:
    - **Family Controls**
@@ -68,7 +70,7 @@ This repo’s main target uses **Generate Info Plist** (`GENERATE_INFOPLIST_FILE
 
 ```xml
 <key>NSFamilyControlsUsageDescription</key>
-<string>EasyMode needs access to Screen Time to block distracting apps during your focus sessions.</string>
+<string>Easymode needs access to Screen Time to block distracting apps during your focus sessions.</string>
 ```
 
 Enable **Live Activities** on the main app target (`NSSupportsLiveActivities` / `INFOPLIST_KEY_NSSupportsLiveActivities`) so the `EasyModeLiveActivity` extension can run.
@@ -122,7 +124,7 @@ Add these files to **all extension targets** that read cross-process state:
 ## Step 4: Update App Group Identifier
 
 If you used a different App Group identifier, update it in these files:
-- `EasyModeTest1/Blocking/ScreenTimeManager.swift` → `appGroupIdentifier`
+- `Easymode/Blocking/ScreenTimeManager.swift` → `appGroupIdentifier`
 - `Shared/SharedStorage.swift` → `appGroupIdentifier`
 - `DeviceActivityMonitorExtension/DeviceActivityMonitorExtension.swift` → `appGroupIdentifier`
 - `ShieldConfigurationExtension/ShieldConfigurationExtension.swift` → `appGroupIdentifier`
@@ -131,7 +133,7 @@ If you used a different App Group identifier, update it in these files:
 
 ### 5.1 Build Order
 Build targets in this order:
-1. Main app (EasyModeTest1)
+1. Main app (Easymode)
 2. DeviceActivityMonitorExtension
 3. ShieldConfigurationExtension
 4. ShieldActionExtension
@@ -172,8 +174,8 @@ Build targets in this order:
 ## File Structure
 
 ```
-EasyModeTest1/
-├── EasyModeTest1/
+easymode/  (repo root; Xcode project: easy-mode.xcodeproj)
+├── Easymode/                          ← main app target sources
 │   ├── Blocking/
 │   │   └── ScreenTimeManager.swift    ← Core blocking logic
 │   ├── ViewModels/
@@ -201,4 +203,4 @@ Apple requires a privacy policy for apps using FamilyControls. Your policy shoul
 
 ## Next steps
 
-Product direction, phased work, and UX backlog live in **`EasyModeTest1/ROADMAP.md`** (blocking engine items, App Store checklist, scheduled focus, pause/resume, and more). Use that file instead of duplicating a roadmap here.
+Product direction, phased work, and UX backlog live in **`Easymode/ROADMAP.md`** (blocking engine items, App Store checklist, scheduled focus, pause/resume, and more). Use that file instead of duplicating a roadmap here.
