@@ -1,6 +1,6 @@
 //
 //  FocusActivityAttributes.swift
-//  EasyModeTest1
+//  Easymode
 //
 //  Defines the data model for Focus Session Live Activities.
 //  Add this file to: Main App, EasyModeLiveActivity extension

@@ -1,4 +1,4 @@
-> **ARCHIVED — 2026-04-18.** Step-by-step implementation plan from Dec 2025. Most tasks have landed (SharedStorage tests, extension bundle checks, task lifecycle timestamps, deterministic UI hooks). Kept for historical reference. Current planning: `EasyModeTest1/ROADMAP.md`. Do not treat as an active checklist.
+> **ARCHIVED — 2026-04-18.** Step-by-step implementation plan from Dec 2025. Most tasks have landed (SharedStorage tests, extension bundle checks, task lifecycle timestamps, deterministic UI hooks). Kept for historical reference. Current planning: `Easymode/ROADMAP.md`. Do not treat as an active checklist.
 
 # EasyMode Comprehensive Improvements Implementation Plan
 
@@ -17,19 +17,19 @@
 
 **Step 1: Review project structure**
 
-Open `EasyModeTest1.xcodeproj` in Xcode and confirm the app target loads without errors.
+Open `easy-mode.xcodeproj` in Xcode and confirm the app target loads without errors.
 
 ### Task 1: Make SharedStorage testable and add unit tests
 
 **Files:**
 - Modify: `Shared/SharedStorage.swift`
-- Create: `EasyModeTest1Tests/SharedStorageTests.swift`
+- Create: `EasymodeTests/SharedStorageTests.swift`
 
 **Step 1: Write the failing test**
 
 ```swift
 import Testing
-@testable import EasyModeTest1
+@testable import Easymode
 
 struct SharedStorageTests {
     @Test @MainActor
@@ -64,7 +64,7 @@ struct SharedStorageTests {
 
 **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1Tests/SharedStorageTests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeTests/SharedStorageTests`
 Expected: FAIL with "init is inaccessible due to 'private' protection level".
 
 **Step 3: Write minimal implementation**
@@ -91,40 +91,40 @@ final class SharedStorage {
 
 **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1Tests/SharedStorageTests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeTests/SharedStorageTests`
 Expected: TEST SUCCEEDED.
 
 **Step 5: Validate tests remain green**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test`
 Expected: TEST SUCCEEDED.
 
 ### Task 2: Add SharedStorage to targets and centralize app-group usage
 
 **Files:**
-- Modify: `EasyModeTest1.xcodeproj/project.pbxproj` (via Xcode)
-- Modify: `EasyModeTest1/Blocking/ScreenTimeManager.swift`
+- Modify: `easy-mode.xcodeproj/project.pbxproj` (via Xcode)
+- Modify: `Easymode/Blocking/ScreenTimeManager.swift`
 - Modify: `DeviceActivityMonitorExtension/DeviceActivityMonitorExtension.swift`
 - Modify: `ShieldConfigurationExtension/ShieldConfigurationExtension.swift`
 
 **Step 1: Ensure SharedStorage is in all targets**
 
-Open `EasyModeTest1.xcodeproj` in Xcode.
+Open `easy-mode.xcodeproj` in Xcode.
 - Select `Shared/SharedStorage.swift` in the navigator.
 - In the File Inspector, check Target Membership for:
-  - `EasyModeTest1`
+  - `Easymode`
   - `DeviceActivityMonitorExtension`
   - `ShieldConfigurationExtension`
   - `ShieldActionExtension`
-- If the file is missing from the project: File > Add Files to "EasyModeTest1"..., choose `Shared/SharedStorage.swift`, and check all four targets.
+- If the file is missing from the project: File > Add Files to "Easymode"..., choose `Shared/SharedStorage.swift`, and check all four targets.
 
 Verify from CLI:
-Run: `rg -n "SharedStorage.swift" EasyModeTest1.xcodeproj/project.pbxproj`
+Run: `rg -n "SharedStorage.swift" easy-mode.xcodeproj/project.pbxproj`
 Expected: >= 4 references (one per target build phase).
 
 **Step 2: Run a baseline build**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' build`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' build`
 Expected: BUILD SUCCEEDED.
 
 **Step 3: Replace app-group storage in ScreenTimeManager**
@@ -177,21 +177,21 @@ private func getCurrentTask() -> String? {
 
 **Step 5: Run a build to verify**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' build`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' build`
 Expected: BUILD SUCCEEDED.
 
 **Step 6: Validate build remains green**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' build`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' build`
 Expected: BUILD SUCCEEDED.
 
 ### Task 3: Persist Screen Time selection only on explicit actions (no UI changes)
 
 **Files:**
-- Modify: `EasyModeTest1/Blocking/ScreenTimeManager.swift`
-- Modify: `EasyModeTest1/ViewModels/BlockViewModel.swift`
-- Modify: `EasyModeTest1/Views/Onboarding/AppSelectionPageView.swift`
-- Create: `EasyModeTest1Tests/BlockSelectionTests.swift`
+- Modify: `Easymode/Blocking/ScreenTimeManager.swift`
+- Modify: `Easymode/ViewModels/BlockViewModel.swift`
+- Modify: `Easymode/Views/Onboarding/AppSelectionPageView.swift`
+- Create: `EasymodeTests/BlockSelectionTests.swift`
 
 **Decision:** Do not change any user-facing UI or behavior. Only adjust persistence timing internally.
 
@@ -199,7 +199,7 @@ Expected: BUILD SUCCEEDED.
 
 ```swift
 import Testing
-@testable import EasyModeTest1
+@testable import Easymode
 import SwiftData
 
 struct BlockSelectionTests {
@@ -224,7 +224,7 @@ struct BlockSelectionTests {
 
 **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1Tests/BlockSelectionTests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeTests/BlockSelectionTests`
 Expected: FAIL because the test file does not exist yet.
 
 **Step 3: Persist selection only on explicit save**
@@ -262,7 +262,7 @@ private func completeOnboarding() {
 
 **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1Tests/BlockSelectionTests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeTests/BlockSelectionTests`
 Expected: TEST SUCCEEDED.
 
 
@@ -270,9 +270,9 @@ Expected: TEST SUCCEEDED.
 ### Task 4: Add task cancellation/completion timestamps and enforce lifecycle integrity
 
 **Files:**
-- Modify: `EasyModeTest1/Models/Item.swift`
-- Modify: `EasyModeTest1/ViewModels/TaskViewModel.swift`
-- Create: `EasyModeTest1Tests/TaskViewModelTests.swift`
+- Modify: `Easymode/Models/Item.swift`
+- Modify: `Easymode/ViewModels/TaskViewModel.swift`
+- Create: `EasymodeTests/TaskViewModelTests.swift`
 
 **Note:** This changes the SwiftData schema. If migration fails on an existing simulator/device, delete the app or reset the simulator to rebuild the store.
 
@@ -280,7 +280,7 @@ Expected: TEST SUCCEEDED.
 
 ```swift
 import Testing
-@testable import EasyModeTest1
+@testable import Easymode
 import SwiftData
 
 struct TaskViewModelTests {
@@ -318,7 +318,7 @@ struct TaskViewModelTests {
 
 **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1Tests/TaskViewModelTests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeTests/TaskViewModelTests`
 Expected: FAIL because `isCancelled`/`completedAt` do not exist.
 
 **Step 3: Write minimal implementation**
@@ -363,21 +363,21 @@ task.cancelledAt = Date()
 
 **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1Tests/TaskViewModelTests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeTests/TaskViewModelTests`
 Expected: TEST SUCCEEDED.
 
 **Step 5: Validate tests remain green**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1 -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1Tests/TaskViewModelTests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeTests/TaskViewModelTests`
 Expected: TEST SUCCEEDED.
 
 ### Task 5: Add accessibility identifiers for UI tests
 
 **Files:**
-- Modify: `EasyModeTest1/Views/Task/Subviews/TaskEntryView.swift`
-- Modify: `EasyModeTest1/Views/Task/Subviews/ActiveTaskView.swift`
-- Modify: `EasyModeTest1/Views/AppTabView.swift`
-- Modify: `EasyModeTest1/Views/Log/LogView.swift`
+- Modify: `Easymode/Views/Task/Subviews/TaskEntryView.swift`
+- Modify: `Easymode/Views/Task/Subviews/ActiveTaskView.swift`
+- Modify: `Easymode/Views/AppTabView.swift`
+- Modify: `Easymode/Views/Log/LogView.swift`
 
 **Step 1: Write the failing test**
 
@@ -387,7 +387,7 @@ Expected: TEST SUCCEEDED.
 
 **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1UITests/EasyModeTest1UITests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode-UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeUITests/EasymodeUITests`
 Expected: FAIL with "No matches found for identifier".
 
 **Step 3: Write minimal implementation**
@@ -411,27 +411,27 @@ Text("History")
 
 **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1UITests/EasyModeTest1UITests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode-UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeUITests/EasymodeUITests`
 Expected: TEST SUCCEEDED.
 
 **Step 5: Validate UI tests see identifiers**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1UITests/EasyModeTest1UITests`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode-UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeUITests/EasymodeUITests`
 Expected: TEST SUCCEEDED.
 
 ### Task 6: Add deterministic UI test for onboarding + focus flow
 
 **Files:**
-- Modify: `EasyModeTest1/EasyModeTest1App.swift`
-- Modify: `EasyModeTest1/Views/Onboarding/PermissionsPageView.swift`
-- Modify: `EasyModeTest1UITests/EasyModeTest1UITests.swift`
+- Modify: `Easymode/EasymodeApp.swift`
+- Modify: `Easymode/Views/Onboarding/PermissionsPageView.swift`
+- Modify: `EasymodeUITests/EasymodeUITests.swift`
 
 **Step 1: Write the failing test**
 
 ```swift
 import XCTest
 
-final class EasyModeTest1UITests: XCTestCase {
+final class EasymodeUITests: XCTestCase {
     func testOnboardingToFirstTaskCompletion() {
         let app = XCUIApplication()
         app.launchArguments.append("-ui-testing")
@@ -464,12 +464,12 @@ final class EasyModeTest1UITests: XCTestCase {
 
 **Step 2: Run test to verify it fails**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testOnboardingToFirstTaskCompletion`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode-UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeUITests/EasymodeUITests/testOnboardingToFirstTaskCompletion`
 Expected: FAIL until onboarding is deterministic and identifiers are present.
 
 **Step 3: Make onboarding deterministic for UI tests**
 
-EasyModeTest1App: reset onboarding state when `-ui-testing` is passed.
+EasymodeApp: reset onboarding state when `-ui-testing` is passed.
 
 ```swift
 init() {
@@ -493,12 +493,12 @@ if ProcessInfo.processInfo.arguments.contains("-ui-testing") {
 
 **Step 4: Run test to verify it passes**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testOnboardingToFirstTaskCompletion`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode-UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeUITests/EasymodeUITests/testOnboardingToFirstTaskCompletion`
 Expected: TEST SUCCEEDED.
 
 **Step 5: Validate UI test passes**
 
-Run: `xcodebuild -project EasyModeTest1.xcodeproj -scheme EasyModeTest1UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testOnboardingToFirstTaskCompletion`
+Run: `xcodebuild -project easy-mode.xcodeproj -scheme Easymode-UITests -destination 'platform=iOS Simulator,name=iPhone 15' test -only-testing:EasymodeUITests/EasymodeUITests/testOnboardingToFirstTaskCompletion`
 Expected: TEST SUCCEEDED.
 
 ### Task 7: Repo hygiene cleanup (optional)

@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-PROJECT="EasyModeTest1.xcodeproj"
-APP_SCHEME="EasyModeTest1"
-UNIT_SCHEME="EasyModeTest1-UnitTests"
-UI_SCHEME="EasyModeTest1-UITests"
+PROJECT="easy-mode.xcodeproj"
+APP_SCHEME="Easymode"
+UNIT_SCHEME="Easymode-UnitTests"
+UI_SCHEME="Easymode-UITests"
 DERIVED_DATA_PATH="${DERIVED_DATA_PATH:-.build/xcode-derived-data}"
 
 usage() {
@@ -145,30 +145,39 @@ run_build() {
 
 run_unit() {
   build_lane "${UNIT_SCHEME}"
-  strip_simulator_plugins
+  local test_args=(-parallel-testing-enabled NO)
+
+  # GitHub's current iOS simulator image cannot install Family Controls
+  # DeviceActivity extensions, so CI strips embedded appex bundles and skips
+  # the tests that assert their presence. Local runs keep the stronger checks.
+  if [[ "${STRIP_SIMULATOR_PLUGINS_FOR_UNIT:-}" == "1" ]]; then
+    strip_simulator_plugins
+    test_args+=(-skip-testing:EasymodeTests/ExtensionConfigurationTests)
+  fi
+
   test_lane "${UNIT_SCHEME}" \
-    -parallel-testing-enabled NO
+    "${test_args[@]}"
 }
 
 run_ui() {
   build_lane "${UI_SCHEME}"
   strip_simulator_plugins
   test_lane "${UI_SCHEME}" \
-    -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testOnboardingToFirstTaskCompletion
+    -only-testing:EasymodeUITests/EasymodeUITests/testOnboardingToFirstTaskCompletion
 }
 
 run_ui_restore() {
   build_lane "${UI_SCHEME}"
   strip_simulator_plugins
   test_lane "${UI_SCHEME}" \
-    -only-testing:EasyModeTest1UITests/EasyModeTest1UITests/testActiveSessionRestoresOnRelaunch
+    -only-testing:EasymodeUITests/EasymodeUITests/testActiveSessionRestoresOnRelaunch
 }
 
 run_perf_ui() {
   build_lane "${UI_SCHEME}"
   strip_simulator_plugins
   test_lane "${UI_SCHEME}" \
-    -only-testing:EasyModeTest1UITests/EasyModeTest1UITestsLaunchPerformanceTests
+    -only-testing:EasymodeUITests/EasymodeUITestsLaunchPerformanceTests
 }
 
 case "${1:-}" in
