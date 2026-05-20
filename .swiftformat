@@ -1,5 +1,4 @@
 --allman false
---binaryoperators spaced
 --commas always
 --comments indent
 --consecutiveblanklines one
