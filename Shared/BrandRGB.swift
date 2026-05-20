@@ -25,7 +25,7 @@ public enum BrandRGB {
 
     /// Hex `#EB8698` — secondary pink accent.
     public static let pink: (red: Double, green: Double, blue: Double) =
-        (0.922, 0.529, 0.596)
+        (235.0 / 255, 134.0 / 255, 152.0 / 255)
 
     /// Hex `#6B6B6B` — secondary / muted foreground (WCAG on parchment).
     public static let mutedForeground: (red: Double, green: Double, blue: Double) =
