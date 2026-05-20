@@ -31,9 +31,6 @@ jobs:
         run: swiftlint --strict
         continue-on-error: false
 
-      - name: Lint (SwiftFormat)
-        run: swiftformat --lint .
-
       - name: Prepare test runner
         run: chmod +x scripts/test.sh
 

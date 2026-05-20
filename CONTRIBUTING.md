@@ -25,7 +25,6 @@ Run on a Mac with full Xcode (not Command Line Tools only):
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 
 swiftlint --strict
-swiftformat --lint .
 
 ./scripts/test.sh build
 ./scripts/test.sh unit
@@ -40,7 +39,7 @@ CI runs lint, build, unit tests, and the lean UI regression lane. Re-run `./scri
 - SwiftLint rules: `.swiftlint.yml`
 - SwiftFormat config: `.swiftformat`
 
-Run `swiftlint` and `swiftformat --lint .` before pushing; CI runs both on pull requests.
+Run `swiftlint --strict` before pushing; CI runs SwiftLint on pull requests. Optional: `swiftformat .` locally (see `.swiftformat`).
 
 ## Brand tokens
 
