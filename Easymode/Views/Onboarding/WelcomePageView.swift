@@ -164,4 +164,3 @@ struct FeatureRow: View {
 #Preview {
     WelcomePageView(onContinue: {})
 }
-

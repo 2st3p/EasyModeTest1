@@ -275,4 +275,3 @@ final class SharedStorage {
 // MARK: - CaseIterable for Keys
 
 extension SharedStorageKey: CaseIterable {}
-

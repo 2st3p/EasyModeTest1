@@ -91,4 +91,3 @@ struct OnboardingProgressView: View {
 #Preview {
     OnboardingView(onComplete: {})
 }
-
