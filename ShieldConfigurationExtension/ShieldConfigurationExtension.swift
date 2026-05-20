@@ -5,17 +5,30 @@
 //  Customizes the appearance of the shield view shown when a user
 //  attempts to open a blocked app during a focus session.
 //
-//  SETUP INSTRUCTIONS:
-//  1. In Xcode, go to File > New > Target
-//  2. Select "Shield Configuration Extension"
-//  3. Name it "ShieldConfigurationExtension"
-//  4. Add this file to the new target
-//  5. Enable "App Groups" capability and add "group.com.easymode.shared"
-//
 
 import ManagedSettings
 import ManagedSettingsUI
 import UIKit
+
+// MARK: - Brand colors (canonical: Shared/BrandRGB.swift)
+
+private enum ShieldBrand {
+    private static func uiColor(_ rgb: (red: Double, green: Double, blue: Double)) -> UIColor {
+        UIColor(red: rgb.red, green: rgb.green, blue: rgb.blue, alpha: 1)
+    }
+
+    static let chartreuse = uiColor(BrandRGB.chartreuse)
+    static let parchment = uiColor(BrandRGB.parchment)
+    static let softBlack = uiColor(BrandRGB.softBlack)
+    static let mutedForeground = uiColor(BrandRGB.mutedForeground)
+
+    /// Matches the Live Activity / marketing mark (`circle.hexagongrid.fill`).
+    static let shieldBrandIcon: UIImage = {
+        let cfg = UIImage.SymbolConfiguration(pointSize: 34, weight: .semibold)
+        let raw = UIImage(systemName: "circle.hexagongrid.fill", withConfiguration: cfg) ?? UIImage()
+        return raw.withTintColor(chartreuse, renderingMode: .alwaysOriginal)
+    }()
+}
 
 /// Extension that provides custom shield configuration for blocked apps.
 /// The shield is displayed when a user tries to open a blocked app.
@@ -62,29 +75,24 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
             context: context
         )
 
-        // Easymode brand colors (matching the app's parchment/warm theme)
-        let backgroundColor = UIColor(red: 0.98, green: 0.96, blue: 0.93, alpha: 1.0) // Warm parchment
-        let primaryColor = UIColor(red: 0.12, green: 0.12, blue: 0.12, alpha: 1.0)    // Soft black
-        let secondaryColor = UIColor(red: 0.45, green: 0.45, blue: 0.45, alpha: 1.0)  // Muted gray
-
         return ShieldConfiguration(
             backgroundBlurStyle: .light,
-            backgroundColor: backgroundColor,
-            icon: nil, // Uses app icon by default
+            backgroundColor: ShieldBrand.parchment,
+            icon: ShieldBrand.shieldBrandIcon,
             title: ShieldConfiguration.Label(
                 text: content.title,
-                color: primaryColor
+                color: ShieldBrand.softBlack
             ),
             subtitle: ShieldConfiguration.Label(
                 text: content.subtitle,
-                color: secondaryColor
+                color: ShieldBrand.mutedForeground
             ),
             primaryButtonLabel: ShieldConfiguration.Label(
                 text: content.primaryButtonLabel,
                 color: .white
             ),
-            primaryButtonBackgroundColor: UIColor(red: 0.541, green: 0.788, blue: 0.149, alpha: 1.0), // Chartreuse #8AC926
-            secondaryButtonLabel: nil // No secondary button - strict blocking
+            primaryButtonBackgroundColor: ShieldBrand.chartreuse,
+            secondaryButtonLabel: nil
         )
     }
     

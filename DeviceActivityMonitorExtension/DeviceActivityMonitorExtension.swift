@@ -19,6 +19,9 @@ import DeviceActivity
 import ManagedSettings
 import FamilyControls
 import Foundation
+import os
+
+private let deviceActivityLog = easyModeLogger("DeviceActivityMonitor")
 
 /// Extension point that monitors device activity and enforces blocking rules.
 /// Runs in a separate process from the main app for persistence.
@@ -53,21 +56,15 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         applyStoredShields()
     }
     
-    /// Called when an event (threshold) is reached
-    override func eventDidReachThreshold(_ event: DeviceActivityEvent.Name, activity: DeviceActivityName) {
-        super.eventDidReachThreshold(event, activity: activity)
-        
-        // Could be used for time-based blocking in future
-    }
-    
     // MARK: - Shield Management
     
     /// Loads the stored app selection and applies shields
     private func applyStoredShields() {
         guard let selection = loadStoredSelection() else {
+            deviceActivityLog.notice("applyStoredShields: no saved FamilyActivitySelection — shields not applied.")
             return
         }
-        
+
         // Apply shields to selected apps
         store.shield.applications = selection.applicationTokens
         store.shield.applicationCategories = .specific(selection.categoryTokens)
@@ -86,6 +83,3 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         SharedStorage.shared.loadSelection()
     }
 }
-
-
-

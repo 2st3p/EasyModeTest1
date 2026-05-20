@@ -144,21 +144,17 @@ final class BlockViewModel: ObservableObject {
         var hasChanges = false
         
         // Remove apps that are no longer selected
-        for app in blockedApps {
-            if !selectedBundleIDs.contains(app.bundleID) {
-                modelContext.delete(app)
-                hasChanges = true
-            }
+        for app in blockedApps where !selectedBundleIDs.contains(app.bundleID) {
+            modelContext.delete(app)
+            hasChanges = true
         }
-        
+
         // Add newly selected apps
         let existingBundleIDs = Set(blockedApps.map(\.bundleID))
-        for bundleID in selectedBundleIDs {
-            if !existingBundleIDs.contains(bundleID) {
-                let appName = bundleID.components(separatedBy: ".").last ?? bundleID
-                modelContext.insert(BlockedApp(bundleID: bundleID, appName: appName))
-                hasChanges = true
-            }
+        for bundleID in selectedBundleIDs where !existingBundleIDs.contains(bundleID) {
+            let appName = bundleID.components(separatedBy: ".").last ?? bundleID
+            modelContext.insert(BlockedApp(bundleID: bundleID, appName: appName))
+            hasChanges = true
         }
         
         // Only save if there were changes

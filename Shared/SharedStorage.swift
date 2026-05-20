@@ -2,17 +2,31 @@
 //  SharedStorage.swift
 //  Easymode
 //
-//  Shared storage utilities for communication between the main app and extensions.
-//  Uses App Groups to share data across processes.
+//  Shared storage utilities for communication between the main app and the
+//  Family Controls extensions. Uses App Groups to share data across processes.
 //
-//  Add this file to all targets: Main App, DeviceActivityMonitorExtension,
-//  ShieldConfigurationExtension, ShieldActionExtension
+//  This file is linked into: Main App, DeviceActivityMonitorExtension,
+//  ShieldConfigurationExtension, ShieldActionExtension.
 //
 
 import Foundation
+import os
 #if canImport(FamilyControls)
 import FamilyControls
 #endif
+
+// MARK: - Shared logging
+
+/// Unified subsystem name used by every EasyMode binary.
+/// `os.Logger` instances created with this subsystem show up together in
+/// Console.app / `log stream --predicate 'subsystem == "name.erikkernan.easymode"'`.
+public let easyModeLogSubsystem = "name.erikkernan.easymode"
+
+/// Factory for category-scoped loggers. Keeps the subsystem string in one place.
+@inlinable
+public func easyModeLogger(_ category: String) -> Logger {
+    Logger(subsystem: easyModeLogSubsystem, category: category)
+}
 
 enum ShieldContentContext {
     case application
@@ -28,7 +42,7 @@ struct ShieldContentConfiguration: Equatable {
 
 enum ShieldContentBuilder {
     private static let fallbackTitle = "Stay focused"
-    private static let fallbackSubtitle = "That can wait... get your shit done first."
+    private static let fallbackSubtitle = "This can wait until your session is done."
     private static let primaryButtonLabel = "Back to focus"
 
     static func build(
@@ -43,7 +57,7 @@ enum ShieldContentBuilder {
         switch context {
         case .application:
             if let appName = normalizedAppName {
-                subtitle = "\(appName) can wait... get your shit done first."
+                subtitle = "\(appName) can wait until your session is done."
             } else {
                 subtitle = fallbackSubtitle
             }
@@ -92,7 +106,9 @@ enum SharedStorageKey: String {
 
 /// Provides shared storage access across app and extensions
 final class SharedStorage {
-    
+
+    private static let log = easyModeLogger("SharedStorage")
+
     // MARK: - Configuration
     
     /// App Group identifier - update with your actual identifier
@@ -114,7 +130,10 @@ final class SharedStorage {
         if let groupDefaults = UserDefaults(suiteName: Self.appGroupIdentifier) {
             return groupDefaults
         }
-        print("⚠️ App Group '\(Self.appGroupIdentifier)' not available. Using standard UserDefaults.")
+        let message =
+            "App Group '\(Self.appGroupIdentifier)' unavailable — " +
+            "falling back to standard UserDefaults (extensions may not see shared state)."
+        Self.log.warning("\(message, privacy: .public)")
         return .standard
     }
 
@@ -171,7 +190,7 @@ final class SharedStorage {
             let data = try PropertyListEncoder().encode(selection)
             defaults.set(data, forKey: SharedStorageKey.appSelection.rawValue)
         } catch {
-            print("⚠️ Failed to save app selection: \(error)")
+            Self.log.error("Failed to save app selection: \(String(describing: error), privacy: .public)")
         }
     }
     
@@ -184,7 +203,7 @@ final class SharedStorage {
         do {
             return try PropertyListDecoder().decode(FamilyActivitySelection.self, from: data)
         } catch {
-            print("⚠️ Failed to load app selection: \(error)")
+            Self.log.error("Failed to load app selection: \(String(describing: error), privacy: .public)")
             return nil
         }
     }
@@ -256,4 +275,3 @@ final class SharedStorage {
 // MARK: - CaseIterable for Keys
 
 extension SharedStorageKey: CaseIterable {}
-

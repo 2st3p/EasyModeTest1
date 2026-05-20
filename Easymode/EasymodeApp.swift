@@ -7,12 +7,38 @@
 
 import SwiftUI
 import SwiftData
+import os
 
 /// The main app structure that serves as the entry point for the Easymode application.
 /// This file configures the app's data model and sets up the main navigation structure.
 @main
 struct EasymodeApp: App {
     fileprivate static let uiTestResetStateKey = "UI_TEST_RESET_STATE"
+    private static let log = easyModeLogger("SwiftData")
+
+    /// Persistent store first; falls back to in-memory so the app stays usable if disk fails.
+    private static func makeSharedModelContainer() -> ModelContainer? {
+        let schema = Schema([
+            Item.self,
+            BlockedApp.self
+        ])
+        let persistent = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        do {
+            return try ModelContainer(for: schema, configurations: [persistent])
+        } catch {
+            Self.log.error("Persistent ModelContainer failed: \(error.localizedDescription, privacy: .public)")
+            let memory = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            do {
+                return try ModelContainer(for: schema, configurations: [memory])
+            } catch {
+                Self.log.critical("In-memory ModelContainer also failed: \(String(describing: error), privacy: .public)")
+                return nil
+            }
+        }
+    }
+
+    /// Lazily created after `init()` runs so UI-test environment mutations apply first.
+    private static let sharedModelContainer: ModelContainer? = Self.makeSharedModelContainer()
 
     /// Tracks whether the user has completed onboarding
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -43,34 +69,45 @@ struct EasymodeApp: App {
 
         // Keep @AppStorage key and App Group backup aligned (either may have been written first).
         SharedStorage.shared.mergeOnboardingCompletionFromAllStores()
-    }
-    
-    /// Configures the SwiftData model container for persistent storage
-    /// This container manages the app's data model and provides the context for data operations
-    var sharedModelContainer: ModelContainer = {
-        // Define the schema for the app's data model
-        let schema = Schema([
-            Item.self,  // Currently using a basic Item model for task storage
-            BlockedApp.self,  // Add BlockedApp to the schema
-        ])
-        // Configure the model to store data persistently (not in memory only)
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+        _ = Self.sharedModelContainer
+    }
 
     var body: some Scene {
         WindowGroup {
-            LaunchRootView(
-                hasCompletedOnboarding: $hasCompletedOnboarding,
-                hasResolvedLaunchState: $hasResolvedLaunchState
-            )
+            Group {
+                if let container = Self.sharedModelContainer {
+                    LaunchRootView(
+                        hasCompletedOnboarding: $hasCompletedOnboarding,
+                        hasResolvedLaunchState: $hasResolvedLaunchState
+                    )
+                    .modelContainer(container)
+                } else {
+                    StorageUnavailableView()
+                }
+            }
         }
-        .modelContainer(sharedModelContainer)  // Provides the data model context to all views
+    }
+}
+
+// MARK: - Storage failure UI
+
+private struct StorageUnavailableView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "externaldrive.badge.exclamationmark")
+                .font(.system(size: 48))
+                .foregroundStyle(.secondary)
+            Text(String(localized: "storage.unavailable.title"))
+                .font(.title2.weight(.semibold))
+            Text(String(localized: "storage.unavailable.detail"))
+                .font(.body)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(uiColor: .systemGroupedBackground))
     }
 }
 
@@ -81,6 +118,7 @@ private struct LaunchRootView: View {
     @Environment(\.modelContext) private var modelContext
 
     private let processInfo = ProcessInfo.processInfo
+    private static let log = easyModeLogger("Launch")
 
     /// Gate for main vs onboarding **after** launch resolves. Uses explicit state read from
     /// `UserDefaults` (synced with App Group via `merge…`) so we never paint `OnboardingView`
@@ -123,7 +161,7 @@ private struct LaunchRootView: View {
                         && processInfo.environment[EasymodeApp.uiTestResetStateKey] == "true"
                 )
             } catch {
-                print("⚠️ Failed to prepare launch state: \(error)")
+                Self.log.error("prepareForLaunch failed: \(error.localizedDescription, privacy: .public)")
             }
 
             SharedStorage.shared.mergeOnboardingCompletionFromAllStores()

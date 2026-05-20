@@ -18,10 +18,7 @@ struct AppSelectionPageView: View {
     
     /// Callback when onboarding is complete
     let onComplete: () -> Void
-    
-    /// Whether the picker is showing (for simulator fallback)
-    @State private var showingPicker = false
-    
+
     /// Animation states
     @State private var showContent = false
     

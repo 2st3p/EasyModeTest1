@@ -32,14 +32,14 @@ struct AppSelectionSheet: View {
                 mockSelectionView
                 #endif
             }
-            .navigationTitle("Choose Apps")
+            .navigationTitle(String(localized: "block.choose_apps.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button(String(localized: "block.choose_apps.cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
+                    Button(String(localized: "block.choose_apps.done")) {
                         saveSelection()
                         dismiss()
                     }
@@ -59,11 +59,13 @@ struct AppSelectionSheet: View {
     #if canImport(FamilyControls)
     private var authorizationView: some View {
         VStack(spacing: 16) {
-            Text("Allow Screen Time access to pick apps to block.")
+            Text(String(localized: "block.choose_apps.auth_message"))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.secondary)
             
-            Button(viewModel.isRequestingAuth ? "Requesting..." : "Grant Access") {
+            Button(viewModel.isRequestingAuth
+                ? String(localized: "block.choose_apps.requesting")
+                : String(localized: "block.choose_apps.grant_access")) {
                 Task {
                     await viewModel.requestAuthorization()
                 }
@@ -122,3 +124,9 @@ struct AppSelectionSheet: View {
     }
 }
 
+#if DEBUG
+#Preview {
+    AppSelectionSheet(blockedApps: [], viewModel: BlockViewModel())
+        .modelContainer(for: BlockedApp.self, inMemory: true)
+}
+#endif

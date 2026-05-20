@@ -13,6 +13,10 @@
 		A10000042F5700010086FF5F /* ../Shared/SharedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000372F5700010086FF5F /* ../Shared/SharedStorage.swift */; };
 		A10000052F5700010086FF5F /* ../Shared/SharedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003B2F5700010086FF5F /* ../Shared/SharedStorage.swift */; };
 		A10000062F5700010086FF5F /* ../Shared/SharedStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003F2F5700010086FF5F /* ../Shared/SharedStorage.swift */; };
+		BR000A42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = BR000A52F5700010086FF5F /* ../Shared/BrandRGB.swift */; };
+		BR000B42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = BR000B52F5700010086FF5F /* ../Shared/BrandRGB.swift */; };
+		BR000C42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = BR000C52F5700010086FF5F /* ../Shared/BrandRGB.swift */; };
+		BR000D42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = BR000D52F5700010086FF5F /* ../Shared/BrandRGB.swift */; };
 		A10000072F5700010086FF5F /* DeviceActivityMonitorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000342F5700010086FF5F /* DeviceActivityMonitorExtension.swift */; };
 		A10000082F5700010086FF5F /* ShieldConfigurationExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000382F5700010086FF5F /* ShieldConfigurationExtension.swift */; };
 		A10000092F5700010086FF5F /* ShieldActionExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003C2F5700010086FF5F /* ShieldActionExtension.swift */; };
@@ -20,6 +24,7 @@
 		LA0000022F5700010086FF5F /* EasyModeLiveActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA0000122F5700010086FF5F /* EasyModeLiveActivityBundle.swift */; };
 		LA0000032F5700010086FF5F /* FocusLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA0000132F5700010086FF5F /* FocusLiveActivity.swift */; };
 		LA0000042F5700010086FF5F /* ../Shared/FocusActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA0000142F5700010086FF5F /* ../Shared/FocusActivityAttributes.swift */; };
+		LA0000052F5700010086FF5F /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = LA0000172F5700010086FF5F /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,12 +109,17 @@
 		A100003D2F5700010086FF5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A100003E2F5700010086FF5F /* ShieldActionExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ShieldActionExtension.entitlements; sourceTree = "<group>"; };
 		A100003F2F5700010086FF5F /* ../Shared/SharedStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Shared/SharedStorage.swift; sourceTree = "<group>"; };
+		BR000A52F5700010086FF5F /* ../Shared/BrandRGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Shared/BrandRGB.swift; sourceTree = "<group>"; };
+		BR000B52F5700010086FF5F /* ../Shared/BrandRGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Shared/BrandRGB.swift; sourceTree = "<group>"; };
+		BR000C52F5700010086FF5F /* ../Shared/BrandRGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Shared/BrandRGB.swift; sourceTree = "<group>"; };
+		BR000D52F5700010086FF5F /* ../Shared/BrandRGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Shared/BrandRGB.swift; sourceTree = "<group>"; };
 		LA0000112F5700010086FF5F /* EasyModeLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EasyModeLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		LA0000122F5700010086FF5F /* EasyModeLiveActivityBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EasyModeLiveActivityBundle.swift; sourceTree = "<group>"; };
 		LA0000132F5700010086FF5F /* FocusLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusLiveActivity.swift; sourceTree = "<group>"; };
 		LA0000142F5700010086FF5F /* ../Shared/FocusActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ../Shared/FocusActivityAttributes.swift; sourceTree = "<group>"; };
 		LA0000152F5700010086FF5F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		LA0000162F5700010086FF5F /* EasyModeLiveActivity.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = EasyModeLiveActivity.entitlements; sourceTree = "<group>"; };
+		LA0000172F5700010086FF5F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -231,6 +241,7 @@
 			children = (
 				A10000342F5700010086FF5F /* DeviceActivityMonitorExtension.swift */,
 				A10000372F5700010086FF5F /* ../Shared/SharedStorage.swift */,
+				BR000A52F5700010086FF5F /* ../Shared/BrandRGB.swift */,
 				A10000352F5700010086FF5F /* Info.plist */,
 				A10000362F5700010086FF5F /* DeviceActivityMonitorExtension.entitlements */,
 			);
@@ -242,6 +253,7 @@
 			children = (
 				A10000382F5700010086FF5F /* ShieldConfigurationExtension.swift */,
 				A100003B2F5700010086FF5F /* ../Shared/SharedStorage.swift */,
+				BR000B52F5700010086FF5F /* ../Shared/BrandRGB.swift */,
 				A10000392F5700010086FF5F /* Info.plist */,
 				A100003A2F5700010086FF5F /* ShieldConfigurationExtension.entitlements */,
 			);
@@ -253,6 +265,7 @@
 			children = (
 				A100003C2F5700010086FF5F /* ShieldActionExtension.swift */,
 				A100003F2F5700010086FF5F /* ../Shared/SharedStorage.swift */,
+				BR000C52F5700010086FF5F /* ../Shared/BrandRGB.swift */,
 				A100003D2F5700010086FF5F /* Info.plist */,
 				A100003E2F5700010086FF5F /* ShieldActionExtension.entitlements */,
 			);
@@ -265,8 +278,10 @@
 				LA0000122F5700010086FF5F /* EasyModeLiveActivityBundle.swift */,
 				LA0000132F5700010086FF5F /* FocusLiveActivity.swift */,
 				LA0000142F5700010086FF5F /* ../Shared/FocusActivityAttributes.swift */,
+				BR000D52F5700010086FF5F /* ../Shared/BrandRGB.swift */,
 				LA0000152F5700010086FF5F /* Info.plist */,
 				LA0000162F5700010086FF5F /* EasyModeLiveActivity.entitlements */,
+				LA0000172F5700010086FF5F /* Localizable.xcstrings */,
 			);
 			path = EasyModeLiveActivity;
 			sourceTree = "<group>";
@@ -531,6 +546,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				LA0000052F5700010086FF5F /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -564,6 +580,7 @@
 			files = (
 				A10000072F5700010086FF5F /* DeviceActivityMonitorExtension.swift in Sources */,
 				A10000042F5700010086FF5F /* ../Shared/SharedStorage.swift in Sources */,
+				BR000A42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -573,6 +590,7 @@
 			files = (
 				A10000082F5700010086FF5F /* ShieldConfigurationExtension.swift in Sources */,
 				A10000052F5700010086FF5F /* ../Shared/SharedStorage.swift in Sources */,
+				BR000B42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -582,6 +600,7 @@
 			files = (
 				A10000092F5700010086FF5F /* ShieldActionExtension.swift in Sources */,
 				A10000062F5700010086FF5F /* ../Shared/SharedStorage.swift in Sources */,
+				BR000C42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -592,6 +611,7 @@
 				LA0000022F5700010086FF5F /* EasyModeLiveActivityBundle.swift in Sources */,
 				LA0000032F5700010086FF5F /* FocusLiveActivity.swift in Sources */,
 				LA0000042F5700010086FF5F /* ../Shared/FocusActivityAttributes.swift in Sources */,
+				BR000D42F5700010086FF5F /* ../Shared/BrandRGB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -683,7 +703,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -740,7 +760,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;

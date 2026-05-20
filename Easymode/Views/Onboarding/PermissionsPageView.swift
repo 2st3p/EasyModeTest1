@@ -35,6 +35,9 @@ struct PermissionsPageView: View {
     /// Animation states
     @State private var showContent = false
 
+    /// Simulator-only permission delay; cancelled if the view disappears.
+    @State private var simulatorPermissionTask: Task<Void, Never>?
+
     init(
         screenTimeManager: ScreenTimeManager,
         onContinue: @escaping () -> Void,
@@ -169,6 +172,10 @@ struct PermissionsPageView: View {
                 onContinue()
             }
         }
+        .onDisappear {
+            simulatorPermissionTask?.cancel()
+            simulatorPermissionTask = nil
+        }
     }
     
     private func animateIn() {
@@ -196,7 +203,10 @@ struct PermissionsPageView: View {
             return
         }
         // Simulator: skip permission (FamilyControls doesn't work in simulator)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        simulatorPermissionTask?.cancel()
+        simulatorPermissionTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            guard !Task.isCancelled else { return }
             isRequesting = false
             HapticManager.shared.success()
             onContinue()

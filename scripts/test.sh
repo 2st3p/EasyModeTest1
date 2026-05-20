@@ -19,6 +19,9 @@ Commands:
   ui-restore Run the active-session relaunch regression lane
   all       Run unit then UI lanes
   perf-ui   Run the opt-in UI performance lane
+
+Simulator-built apps retain PlugIns/*.appex so ExtensionConfigurationTests see embedded extensions.
+Code coverage result bundles are written next to Derived Data (-enableCodeCoverage YES).
 EOF
 }
 
@@ -115,13 +118,18 @@ build_lane() {
 
 test_lane() {
   local scheme="$1"
-  shift
+  local result_basename="$2"
+  shift 2
+  local result_path="${DERIVED_DATA_PATH}/${result_basename}.xcresult"
+  rm -rf "${result_path}"
   xcodebuild \
     -project "${PROJECT}" \
     -scheme "${scheme}" \
     -destination "${DESTINATION}" \
     -derivedDataPath "${DERIVED_DATA_PATH}" \
     test-without-building \
+    -enableCodeCoverage YES \
+    -resultBundlePath "${result_path}" \
     "$@"
 }
 
@@ -155,28 +163,27 @@ run_unit() {
     test_args+=(-skip-testing:EasymodeTests/ExtensionConfigurationTests)
   fi
 
-  test_lane "${UNIT_SCHEME}" \
-    "${test_args[@]}"
+  test_lane "${UNIT_SCHEME}" "unit-tests" "${test_args[@]}"
 }
 
 run_ui() {
   build_lane "${UI_SCHEME}"
   strip_simulator_plugins
-  test_lane "${UI_SCHEME}" \
+  test_lane "${UI_SCHEME}" "ui-tests" \
     -only-testing:EasymodeUITests/EasymodeUITests/testOnboardingToFirstTaskCompletion
 }
 
 run_ui_restore() {
   build_lane "${UI_SCHEME}"
   strip_simulator_plugins
-  test_lane "${UI_SCHEME}" \
+  test_lane "${UI_SCHEME}" "ui-restore-tests" \
     -only-testing:EasymodeUITests/EasymodeUITests/testActiveSessionRestoresOnRelaunch
 }
 
 run_perf_ui() {
   build_lane "${UI_SCHEME}"
   strip_simulator_plugins
-  test_lane "${UI_SCHEME}" \
+  test_lane "${UI_SCHEME}" "ui-perf-tests" \
     -only-testing:EasymodeUITests/EasymodeUITestsLaunchPerformanceTests
 }
 

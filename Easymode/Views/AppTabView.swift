@@ -6,39 +6,54 @@
 //
 
 import SwiftUI
+import SwiftData
+import UIKit
 
-/// Main tab view with styled navigation matching DigitalDetoxCoach design
+/// Root tab view: Home (focus), Log (history), Block (settings).
 struct AppTabView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var selectedTab = 0
     @State private var shouldShowPermissionsPrompt = false
     @State private var hasResolvedAuthorization = false
     @StateObject private var screenTimeManager = ScreenTimeManager.shared
-    
+
+    private static var chartreuseUIColor: UIColor {
+        UIColor(
+            red: BrandTokens.chartreuseRGB.red,
+            green: BrandTokens.chartreuseRGB.green,
+            blue: BrandTokens.chartreuseRGB.blue,
+            alpha: 1
+        )
+    }
+
     var body: some View {
         TabView(selection: $selectedTab) {
             TaskView()
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
+                    Label(String(localized: "tab.home"), systemImage: "house.fill")
                 }
                 .tag(0)
-            
+
             LogView()
                 .tabItem {
-                    Label("Log", systemImage: "list.bullet")
+                    Label(String(localized: "tab.log"), systemImage: "list.bullet")
                 }
                 .tag(1)
-            
+
             BlockView()
                 .tabItem {
-                    Label("Settings", systemImage: "gearshape.fill")
+                    Label(String(localized: "tab.block"), systemImage: "shield.fill")
                 }
                 .tag(2)
         }
+        .environment(\.selectHomeTab, { selectedTab = 0 })
         .accessibilityIdentifier("tabs.root")
         .tint(.primaryChartreuse)
         .onAppear {
             configureTabBarAppearance()
+        }
+        .onChange(of: selectedTab) { _, _ in
+            HapticManager.shared.selection()
         }
         .task {
             await refreshScreenTimeAuthorization()
@@ -46,8 +61,6 @@ struct AppTabView: View {
         .onChange(of: scenePhase) { _, newPhase in
             guard newPhase == .active else { return }
             Task {
-                // Re-check authorization when app becomes active, but don't reset
-                // hasResolvedAuthorization to avoid flashing the permission sheet
                 await refreshScreenTimeAuthorizationWithoutReset()
             }
         }
@@ -64,33 +77,31 @@ struct AppTabView: View {
             )
         }
     }
-    
+
     private func configureTabBarAppearance() {
         let appearance = UITabBarAppearance()
         appearance.configureWithTransparentBackground()
-        appearance.backgroundColor = UIColor.white.withAlphaComponent(0.8)
-        
-        // Blur effect background
-        let blurEffect = UIBlurEffect(style: .systemUltraThinMaterialLight)
-        
-        // Normal state
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.gray
+        appearance.backgroundEffect = UIBlurEffect(style: .systemChromeMaterial)
+        appearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.65)
+
+        let normalGray = UIColor.secondaryLabel
+        let chartreuse = Self.chartreuseUIColor
+        let tabFont = UIFont.systemFont(ofSize: 11, weight: .medium)
+
+        appearance.stackedLayoutAppearance.normal.iconColor = normalGray
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-            .foregroundColor: UIColor.gray,
-            .font: UIFont.systemFont(ofSize: 10, weight: .medium)
+            .foregroundColor: normalGray,
+            .font: tabFont
         ]
-        
-        // Selected state - chartreuse accent
-        let primaryChartreuseUIColor = UIColor(red: 0.541, green: 0.788, blue: 0.149, alpha: 1.0)
-        appearance.stackedLayoutAppearance.selected.iconColor = primaryChartreuseUIColor
+
+        appearance.stackedLayoutAppearance.selected.iconColor = chartreuse
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-            .foregroundColor: primaryChartreuseUIColor,
-            .font: UIFont.systemFont(ofSize: 10, weight: .medium)
+            .foregroundColor: chartreuse,
+            .font: tabFont
         ]
-        
-        // Border
-        appearance.shadowColor = UIColor.black.withAlphaComponent(0.05)
-        
+
+        appearance.shadowColor = UIColor.separator.withAlphaComponent(0.45)
+
         UITabBar.appearance().standardAppearance = appearance
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
@@ -103,8 +114,6 @@ struct AppTabView: View {
         #else
         await screenTimeManager.checkAuthorizationStatus()
         hasResolvedAuthorization = true
-        // Only auto-prompt if user hasn't completed onboarding (which sets this to false).
-        // After onboarding, the user can request permissions explicitly from the Settings tab.
         let shouldAutoPrompt = SharedStorage.shared.shouldAutoPromptForPermissions()
         shouldShowPermissionsPrompt = shouldAutoPrompt && !screenTimeManager.isAuthorized
         #endif
@@ -116,9 +125,13 @@ struct AppTabView: View {
         shouldShowPermissionsPrompt = false
         #else
         await screenTimeManager.checkAuthorizationStatus()
-        // Same gate: don't re-prompt after onboarding
         let shouldAutoPrompt = SharedStorage.shared.shouldAutoPromptForPermissions()
         shouldShowPermissionsPrompt = shouldAutoPrompt && !screenTimeManager.isAuthorized
         #endif
     }
+}
+
+#Preview {
+    AppTabView()
+        .modelContainer(for: [Item.self, BlockedApp.self], inMemory: true)
 }

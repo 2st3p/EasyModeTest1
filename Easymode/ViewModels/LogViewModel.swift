@@ -71,4 +71,3 @@ enum LogError: LocalizedError {
         }
     }
 }
-

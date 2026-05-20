@@ -50,6 +50,14 @@ struct ExtensionConfigurationTests {
         #expect(pointID == "com.apple.deviceactivity.monitor")
     }
 
+    @Test
+    func easyModeLiveActivity_widgetExtensionPointIdentifier() throws {
+        let ext = try nsExtension("EasyModeLiveActivity")
+        let pointID = try #require(ext["NSExtensionPointIdentifier"] as? String)
+
+        #expect(pointID == "com.apple.widgetkit-extension")
+    }
+
     // MARK: - Principal Classes
 
     @Test
@@ -84,7 +92,8 @@ struct ExtensionConfigurationTests {
         let expectedExtensions = [
             "ShieldConfigurationExtension",
             "ShieldActionExtension",
-            "DeviceActivityMonitorExtension"
+            "DeviceActivityMonitorExtension",
+            "EasyModeLiveActivity"
         ]
 
         for name in expectedExtensions {
@@ -103,7 +112,8 @@ struct ExtensionConfigurationTests {
         let extensions = [
             "ShieldConfigurationExtension",
             "ShieldActionExtension",
-            "DeviceActivityMonitorExtension"
+            "DeviceActivityMonitorExtension",
+            "EasyModeLiveActivity"
         ]
 
         var bundleIDs: [String: String] = [:]

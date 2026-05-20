@@ -10,6 +10,42 @@ import ActivityKit
 import WidgetKit
 import SwiftUI
 
+/// Single SF Symbol that represents an active focus session.
+/// Kept here so the choice is changed in one place. The previous mark was
+/// `birthday.cake.fill`; switched to `circle.hexagongrid.fill` so the brand
+/// reads as deliberate focus rather than confetti.
+private let brandFocusSymbol = "circle.hexagongrid.fill"
+
+/// Conservative far-future endpoint for the elapsed-time `timerInterval`.
+/// SwiftUI's `timerInterval` keeps counting up until the end of this window;
+/// we use 24h since real focus sessions are bounded well below that.
+private let sessionTimerWindow: TimeInterval = 86_400
+
+// MARK: - Brand colors (canonical: Shared/BrandRGB.swift)
+
+private func brandColor(_ rgb: (red: Double, green: Double, blue: Double)) -> Color {
+    Color(red: rgb.red, green: rgb.green, blue: rgb.blue)
+}
+
+private let primaryTextColor = brandColor(BrandRGB.softBlack)
+private let secondaryTextColor = brandColor(BrandRGB.mutedForeground)
+private let cardBackgroundColor = brandColor(BrandRGB.parchment)
+private let chartreuse = brandColor(BrandRGB.chartreuse)
+private let blockingGreen = brandColor(BrandRGB.blockingGreen)
+
+/// Shared Easy Mode mark for Dynamic Island + Lock Screen (matches shield extension asset).
+private struct BrandMark: View {
+    var font: Font = .body
+    var weight: Font.Weight = .regular
+
+    var body: some View {
+        Image(systemName: brandFocusSymbol)
+            .font(font)
+            .fontWeight(weight)
+            .foregroundStyle(chartreuse)
+    }
+}
+
 struct FocusLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: FocusActivityAttributes.self) { context in
@@ -20,13 +56,8 @@ struct FocusLiveActivity: Widget {
                 // Expanded Dynamic Island (long press)
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Image(systemName: "birthday.cake.fill")
-                            .font(.title)
-                            .foregroundStyle(chartreuse)
-                        Text(timerInterval: context.attributes.startTime...context.attributes.startTime.addingTimeInterval(86400), countsDown: false)
-                            .font(.caption)
-                            .fontWeight(.semibold)
-                            .monospacedDigit()
+                        BrandMark(font: .title)
+                        sessionTimer(start: context.attributes.startTime, font: .caption)
                             .foregroundStyle(primaryTextColor)
                     }
                 }
@@ -43,46 +74,36 @@ struct FocusLiveActivity: Widget {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     HStack(spacing: 8) {
-                        Image(systemName: "birthday.cake.fill")
-                            .font(.caption)
-                            .foregroundStyle(chartreuse)
-                        Text(timerInterval: context.attributes.startTime...context.attributes.startTime.addingTimeInterval(86400), countsDown: false)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .monospacedDigit()
+                        BrandMark(font: .caption)
+                        sessionTimer(start: context.attributes.startTime, font: .subheadline)
                             .foregroundStyle(secondaryTextColor)
                     }
                 }
             } compactLeading: {
-                Image(systemName: "birthday.cake.fill")
-                    .font(.body)
-                    .foregroundStyle(chartreuse)
+                BrandMark(font: .body)
             } compactTrailing: {
                 HStack(spacing: 4) {
-                    Text(timerInterval: context.attributes.startTime...context.attributes.startTime.addingTimeInterval(86400), countsDown: false)
-                        .font(.caption2)
-                        .fontWeight(.semibold)
-                        .monospacedDigit()
+                    sessionTimer(start: context.attributes.startTime, font: .caption2)
                         .foregroundStyle(primaryTextColor)
                     Image(systemName: context.state.isBlocking ? "lock.fill" : "lock.open")
                         .font(.caption2)
                         .fontWeight(.semibold)
-                        .foregroundStyle(context.state.isBlocking ? Color(red: 0.1, green: 0.5, blue: 0.2) : secondaryTextColor)
+                        .foregroundStyle(context.state.isBlocking ? blockingGreen : secondaryTextColor)
                 }
             } minimal: {
-                Image(systemName: "birthday.cake.fill")
-                    .foregroundStyle(chartreuse)
+                BrandMark(font: .caption2)
             }
         }
     }
 }
 
-// MARK: - High-contrast colors for Lock Screen readability
-
-private let primaryTextColor = Color(red: 0.1, green: 0.1, blue: 0.1)
-private let secondaryTextColor = Color(red: 0.25, green: 0.25, blue: 0.25)
-private let cardBackgroundColor = Color(white: 0.96)
-private let chartreuse = Color(red: 0.541, green: 0.788, blue: 0.149) // #8AC926
+@ViewBuilder
+private func sessionTimer(start: Date, font: Font) -> some View {
+    Text(timerInterval: start...start.addingTimeInterval(sessionTimerWindow), countsDown: false)
+        .font(font)
+        .fontWeight(.semibold)
+        .monospacedDigit()
+}
 
 // MARK: - Blocking Status Badge
 
@@ -94,11 +115,13 @@ private struct BlockingStatusBadge: View {
             Image(systemName: isBlocking ? "lock.fill" : "lock.open")
                 .font(.caption)
                 .fontWeight(.semibold)
-            Text(isBlocking ? "Blocking" : "Focus")
+            Text(isBlocking
+                ? String(localized: "liveactivity.blocking", bundle: .main)
+                : String(localized: "liveactivity.focus", bundle: .main))
                 .font(.caption)
                 .fontWeight(.semibold)
         }
-        .foregroundStyle(isBlocking ? Color(red: 0.1, green: 0.5, blue: 0.2) : secondaryTextColor)
+        .foregroundStyle(isBlocking ? blockingGreen : secondaryTextColor)
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
         .background(
@@ -115,19 +138,14 @@ struct LockScreenView: View {
 
     var body: some View {
         HStack(spacing: 20) {
-            // Leading icon badge - cake icon
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(chartreuse.opacity(0.3))
                     .frame(width: 52, height: 52)
 
-                Image(systemName: "birthday.cake.fill")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(chartreuse)
+                BrandMark(font: .title2, weight: .bold)
             }
 
-            // Task text and timer
             VStack(alignment: .leading, spacing: 6) {
                 Text(context.attributes.taskText)
                     .font(.headline)
@@ -135,16 +153,12 @@ struct LockScreenView: View {
                     .foregroundStyle(primaryTextColor)
                     .lineLimit(2)
 
-                Text(timerInterval: context.attributes.startTime...context.attributes.startTime.addingTimeInterval(86400), countsDown: false)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .monospacedDigit()
+                sessionTimer(start: context.attributes.startTime, font: .subheadline)
                     .foregroundStyle(secondaryTextColor)
             }
 
             Spacer(minLength: 8)
 
-            // Blocking status chip
             BlockingStatusBadge(isBlocking: context.state.isBlocking)
         }
         .padding(.horizontal, 20)

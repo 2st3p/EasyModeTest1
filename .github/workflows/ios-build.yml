@@ -11,6 +11,7 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+
       - name: Select Xcode 16
         run: |
           xcode_path="$(find /Applications -maxdepth 1 -name 'Xcode_16*.app' -print | sort | tail -n 1)"
@@ -18,14 +19,42 @@ jobs:
             echo "No Xcode 16 installation found on the runner." >&2
             exit 1
           fi
-
           sudo xcode-select -s "${xcode_path}/Contents/Developer"
           xcodebuild -version
+
+      - name: Install linters
+        run: brew install swiftlint
+
+      - name: Cache Derived Data
+        uses: actions/cache@v4
+        with:
+          path: .build/xcode-derived-data
+          key: ${{ runner.os }}-dd-${{ hashFiles('**/project.pbxproj', '**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-dd-
+
+      - name: Lint (SwiftLint)
+        run: swiftlint --strict
+        continue-on-error: false
+
       - name: Prepare test runner
         run: chmod +x scripts/test.sh
+
+      - name: Build app (simulator)
+        run: ./scripts/test.sh build
+
       - name: Unit tests
         env:
           STRIP_SIMULATOR_PLUGINS_FOR_UNIT: "1"
         run: ./scripts/test.sh unit
+
       - name: UI regressions
         run: ./scripts/test.sh ui
+
+      - name: Upload unit test result bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-tests-xcresult
+          path: .build/xcode-derived-data/unit-tests.xcresult
+          if-no-files-found: ignore
