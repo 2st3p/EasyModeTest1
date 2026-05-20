@@ -61,7 +61,11 @@ class ShieldActionExtension: ShieldActionDelegate {
     // MARK: - Category Shield Actions
 
     /// Handles the primary button action for a blocked category
-    override func handle(action: ShieldAction, for category: ActivityCategoryToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+    override func handle(
+        action: ShieldAction,
+        for category: ActivityCategoryToken,
+        completionHandler: @escaping (ShieldActionResponse) -> Void
+    ) {
         switch action {
         case .primaryButtonPressed:
             shieldActionLog.notice("Primary shield button dismissed (category).")
@@ -91,6 +95,5 @@ class ShieldActionExtension: ShieldActionDelegate {
     - Log each time user hits the shield
     - Could feed into a "willpower score" or similar feature
  */
-
 
 

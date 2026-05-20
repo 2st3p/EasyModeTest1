@@ -56,13 +56,6 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         applyStoredShields()
     }
     
-    /// Called when an event (threshold) is reached
-    override func eventDidReachThreshold(_ event: DeviceActivityEvent.Name, activity: DeviceActivityName) {
-        super.eventDidReachThreshold(event, activity: activity)
-        
-        // Could be used for time-based blocking in future
-    }
-    
     // MARK: - Shield Management
     
     /// Loads the stored app selection and applies shields
@@ -90,6 +83,4 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         SharedStorage.shared.loadSelection()
     }
 }
-
-
 

@@ -20,7 +20,7 @@ struct EasymodeApp: App {
     private static func makeSharedModelContainer() -> ModelContainer? {
         let schema = Schema([
             Item.self,
-            BlockedApp.self,
+            BlockedApp.self
         ])
         let persistent = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {

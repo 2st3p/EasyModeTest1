@@ -91,13 +91,13 @@ struct AppTabView: View {
         appearance.stackedLayoutAppearance.normal.iconColor = normalGray
         appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
             .foregroundColor: normalGray,
-            .font: tabFont,
+            .font: tabFont
         ]
 
         appearance.stackedLayoutAppearance.selected.iconColor = chartreuse
         appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
             .foregroundColor: chartreuse,
-            .font: tabFont,
+            .font: tabFont
         ]
 
         appearance.shadowColor = UIColor.separator.withAlphaComponent(0.45)
