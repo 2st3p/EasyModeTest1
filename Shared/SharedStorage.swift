@@ -130,9 +130,10 @@ final class SharedStorage {
         if let groupDefaults = UserDefaults(suiteName: Self.appGroupIdentifier) {
             return groupDefaults
         }
-        Self.log.warning(
-            "App Group '\(Self.appGroupIdentifier, privacy: .public)' unavailable — falling back to standard UserDefaults (extensions may not see shared state)."
-        )
+        let message =
+            "App Group '\(Self.appGroupIdentifier)' unavailable — " +
+            "falling back to standard UserDefaults (extensions may not see shared state)."
+        Self.log.warning("\(message, privacy: .public)")
         return .standard
     }
 
