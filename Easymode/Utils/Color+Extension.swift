@@ -25,31 +25,9 @@ extension Color {
     static let secondaryPink = Color.brandPink
 
     // MARK: - Semantic colors
-
-    /// Card / elevated surface. Pure white in light mode, slightly lifted in dark mode.
-    static let cardBackground = Color("CardBackground", bundle: .main, fallback: .white)
-
-    /// Secondary text — passes WCAG AA on parchment.
-    /// `#6B6B6B` in light; warm dim bone in dark.
-    static let mutedForeground = Color(
-        "MutedForeground",
-        bundle: .main,
-        fallback: Color(red: 0.42, green: 0.42, blue: 0.42)
-    )
-
-    /// Filled but un-emphasized background (e.g. category chips).
-    static let mutedBackground = Color(
-        "MutedBackground",
-        bundle: .main,
-        fallback: Color(red: 0.941, green: 0.941, blue: 0.941)
-    )
-
-    /// Hairline borders and dividers.
-    static let borderColor = Color(
-        "BorderColor",
-        bundle: .main,
-        fallback: Color(red: 0.9, green: 0.9, blue: 0.9)
-    )
+    //
+    // `CardBackground`, `MutedForeground`, `MutedBackground`, and `BorderColor` come from the
+    // asset catalog as generated `Color.*` symbols (`ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS`).
 
     /// Destructive accent — `#EB4343`.
     static let destructive = Color(red: 0.922, green: 0.263, blue: 0.263)
