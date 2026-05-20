@@ -26,8 +26,11 @@ extension Color {
 
     // MARK: - Semantic colors
     //
-    // `CardBackground`, `MutedForeground`, `MutedBackground`, and `BorderColor` come from the
-    // asset catalog as generated `Color.*` symbols (`ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS`).
+    // `CardBackground`, `MutedForeground`, and `MutedBackground` are generated `Color.*` symbols
+    // (`ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS`). `BorderColor` becomes `.border`.
+
+    /// Hairline borders and dividers (alias for generated `Color.border` from `BorderColor`).
+    static let borderColor = Color.border
 
     /// Destructive accent — `#EB4343`.
     static let destructive = Color(red: 0.922, green: 0.263, blue: 0.263)
