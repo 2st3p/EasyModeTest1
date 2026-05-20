@@ -8,10 +8,13 @@
 
 import Foundation
 import ActivityKit
+import os
 
 @MainActor
 final class LiveActivityManager: ObservableObject {
-    
+
+    private static let log = easyModeLogger("LiveActivity")
+
     // MARK: - Singleton
     
     static let shared = LiveActivityManager()
@@ -49,7 +52,7 @@ final class LiveActivityManager: ObservableObject {
     ///   - startTime: When the focus session started (defaults to now)
     func startFocusActivity(taskText: String, isBlocking: Bool, startTime: Date = Date()) async {
         guard isSupported else {
-            print("⚠️ Live Activities not supported on this device")
+            Self.log.notice("Live Activities not enabled or unsupported on this device.")
             return
         }
         
@@ -71,9 +74,9 @@ final class LiveActivityManager: ObservableObject {
                 content: content,
                 pushType: nil
             )
-            print("✅ Live Activity started for task: \(taskText)")
+            Self.log.notice("Live Activity started (blocking=\(isBlocking, privacy: .public)).")
         } catch {
-            print("❌ Failed to start Live Activity: \(error.localizedDescription)")
+            Self.log.error("Failed to start Live Activity: \(error.localizedDescription, privacy: .public)")
         }
     }
     
@@ -104,7 +107,7 @@ final class LiveActivityManager: ObservableObject {
             await activity.end(finalContent, dismissalPolicy: .immediate)
         }
         currentActivity = nil
-        print("✅ Live Activity ended (completed: \(completed))")
+        Self.log.notice("Live Activity ended (completed=\(completed, privacy: .public)).")
     }
     
     /// Ends all active focus activities (cleanup)

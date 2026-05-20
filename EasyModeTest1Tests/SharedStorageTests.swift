@@ -12,7 +12,7 @@ struct SharedStorageTests {
         )
 
         #expect(content.title == "Ship the blocking screen")
-        #expect(content.subtitle == "Instagram can wait... get your shit done first.")
+        #expect(content.subtitle == "Instagram can wait until your session is done.")
         #expect(content.primaryButtonLabel == "Back to focus")
     }
 
@@ -25,7 +25,7 @@ struct SharedStorageTests {
         )
 
         #expect(content.title == "Stay focused")
-        #expect(content.subtitle == "TikTok can wait... get your shit done first.")
+        #expect(content.subtitle == "TikTok can wait until your session is done.")
     }
 
     @Test
@@ -37,7 +37,7 @@ struct SharedStorageTests {
         )
 
         #expect(content.title == "Write the spec")
-        #expect(content.subtitle == "That can wait... get your shit done first.")
+        #expect(content.subtitle == "This can wait until your session is done.")
     }
 
     @Test
@@ -49,7 +49,7 @@ struct SharedStorageTests {
         )
 
         #expect(content.title == "Stay focused")
-        #expect(content.subtitle == "That can wait... get your shit done first.")
+        #expect(content.subtitle == "This can wait until your session is done.")
     }
 
     @Test

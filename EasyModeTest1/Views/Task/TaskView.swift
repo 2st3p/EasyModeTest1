@@ -7,12 +7,8 @@
 
 import SwiftUI
 import SwiftData
-import UIKit
 
-/// The main task management view that displays and manages user tasks.
-/// This view serves as the primary interface for task creation, viewing, and completion.
-/// It conditionally displays either the task entry interface or the active task view
-/// based on whether there is an active task in progress.
+/// Top-level Home view. Swaps between task entry and the active task view based on SwiftData state.
 struct TaskView: View {
     /// Provides access to the SwiftData model context for data operations
     @Environment(\.modelContext) private var modelContext
@@ -45,19 +41,23 @@ struct TaskView: View {
         }
         .parchmentBackground()
         .animation(.easeInOut(duration: 0.6), value: activeTasks.first?.persistentModelID)
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) { }
+        .alert(String(localized: "alert.error.title"), isPresented: $viewModel.showError) {
+            Button(String(localized: "alert.ok"), role: .cancel) { }
         } message: {
             Text(viewModel.errorMessage ?? "An unknown error occurred")
         }
-        .alert("No Apps Selected", isPresented: $viewModel.showNoAppsWarning) {
-            Button("OK", role: .cancel) { }
+        .alert(String(localized: "task.no_apps.alert.title"), isPresented: $viewModel.showNoAppsWarning) {
+            Button(String(localized: "alert.ok"), role: .cancel) { }
         } message: {
-            Text("Your task is active, but no apps are blocked. Select apps in the Settings tab to enable blocking.")
+            Text(String(localized: "task.no_apps.alert.message"))
+        }
+        .onDisappear {
+            viewModel.cancelPendingLiveActivityWork()
         }
         .onAppear {
-            // Restore draft input on appear (survives tab switches)
-            if viewModel.taskInput.isEmpty && !activeTasks.isEmpty == false {
+            // Restore draft input on appear (survives tab switches).
+            // Only when there is no active task — otherwise the draft would shadow it.
+            if viewModel.taskInput.isEmpty && activeTasks.isEmpty {
                 viewModel.taskInput = draftTaskInput
             }
         }
@@ -78,11 +78,9 @@ struct TaskView: View {
         }
     }
     
-    /// Completes the given task by marking it as completed
+    /// Completes the given task by marking it as completed.
+    /// Success haptic is owned by `ActiveTaskView.handleComplete` so we don't double-fire.
     private func completeTask(_ task: Item) {
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
-        
         do {
             try viewModel.completeTask(task, using: modelContext)
         } catch {

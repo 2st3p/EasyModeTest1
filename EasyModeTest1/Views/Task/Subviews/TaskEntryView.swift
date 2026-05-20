@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-/// View for entering a new task matching DigitalDetoxCoach design
-/// Provides a text field for task input and a button to create the task
+/// Entry view for typing a single focus intention.
 struct TaskEntryView: View {
     /// The current text input for the task
     @Binding var taskInput: String
@@ -18,27 +17,32 @@ struct TaskEntryView: View {
     @FocusState private var isTextFieldFocused: Bool
     /// Counter for debounced haptic feedback
     @State private var hapticCounter = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let maxLength = 90
-    private var isInputValid: Bool {
-        !taskInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-    
-    private var titleAttributedString: AttributedString {
+    private static let maxLength = 90
+    /// Number of newly typed characters between haptic ticks.
+    private static let hapticTickStride = 4
+
+    /// Pre-built so we don't reallocate three `AttributedString`s every body refresh.
+    private static let titleAttributedString: AttributedString = {
         var start = AttributedString("What do you want to ")
         start.font = .serifTitle(36)
         start.foregroundColor = .softBlack
-        
+
         var middle = AttributedString("accomplish")
         middle.font = .serifTitle(36)
         middle.foregroundColor = .softBlack
         middle.backgroundColor = Color.primaryChartreuse.opacity(0.15)
-        
+
         var end = AttributedString(" next?")
         end.font = .serifTitle(36)
         end.foregroundColor = .softBlack
-        
+
         return start + middle + end
+    }()
+
+    private var isInputValid: Bool {
+        !taskInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     var body: some View {
@@ -52,7 +56,7 @@ struct TaskEntryView: View {
             VStack(spacing: 0) {
                 // Title section
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(titleAttributedString)
+                    Text(Self.titleAttributedString)
                         .fixedSize(horizontal: false, vertical: true) // Ensure it wraps
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -69,7 +73,7 @@ struct TaskEntryView: View {
                             text: $taskInput,
                             prompt: Text("I want to...")
                                 .font(.serifLarge(28))
-                                .foregroundStyle(Color(uiColor: .systemGray3)),
+                                .foregroundStyle(Color.placeholderForeground),
                             axis: .vertical
                         )
                             .font(.serifLarge(28))
@@ -81,33 +85,29 @@ struct TaskEntryView: View {
                             .lineLimit(1...)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.bottom, 16)
-                            .overlay(
+                            .overlay(alignment: .bottom) {
                                 Rectangle()
                                     .frame(height: isTextFieldFocused ? 2 : 1.5)
-                                    .foregroundColor(isTextFieldFocused ? Color(uiColor: .systemGray) : Color(uiColor: .systemGray))
+                                    .foregroundStyle(isTextFieldFocused ? Color.primaryChartreuse.opacity(0.72) : Color.borderColor)
                                     .shadow(
-                                        color: isTextFieldFocused ? Color(uiColor: .systemGray4) : .clear,
-                                        radius: 2,
-                                        y: 1
+                                        color: isTextFieldFocused ? Color.primaryChartreuse.opacity(0.35) : .clear,
+                                        radius: isTextFieldFocused ? 4 : 0,
+                                        y: isTextFieldFocused ? 2 : 0
                                     )
-                                    .offset(y: 16),
-                                alignment: .bottom
-                            )
+                                    .offset(y: 16)
+                            }
                             .onChange(of: taskInput) { oldValue, newValue in
-                                // Debounced haptic feedback every 4 characters
                                 if newValue.count > oldValue.count {
                                     hapticCounter += 1
-                                    if hapticCounter >= 4 {
+                                    if hapticCounter >= Self.hapticTickStride {
                                         HapticManager.shared.selection()
                                         hapticCounter = 0
                                     }
                                 } else if newValue.count < oldValue.count {
-                                    // Reset counter when deleting
                                     hapticCounter = 0
                                 }
-                                // Limit to maxLength (enforced but not displayed)
-                                if newValue.count > maxLength {
-                                    taskInput = String(newValue.prefix(maxLength))
+                                if newValue.count > Self.maxLength {
+                                    taskInput = String(newValue.prefix(Self.maxLength))
                                     HapticManager.shared.impact()
                                 }
                             }
@@ -146,7 +146,11 @@ struct TaskEntryView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .parchmentBackground()
-        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isInputValid)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isTextFieldFocused)
+        .animation(reduceMotion ? .linear(duration: 0.001) : .spring(response: 0.4, dampingFraction: 0.8), value: isInputValid)
+        .animation(reduceMotion ? .linear(duration: 0.001) : .spring(response: 0.3, dampingFraction: 0.7), value: isTextFieldFocused)
     }
+}
+
+#Preview {
+    TaskEntryView(taskInput: .constant(""), onSubmit: {})
 }

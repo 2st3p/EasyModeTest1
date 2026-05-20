@@ -15,6 +15,9 @@
 
 import ManagedSettings
 import ManagedSettingsUI
+import os
+
+private let shieldActionLog = easyModeLogger("ShieldAction")
 
 /// Extension that handles shield button actions.
 /// Controls what happens when users interact with blocked app shields.
@@ -26,7 +29,7 @@ class ShieldActionExtension: ShieldActionDelegate {
     override func handle(action: ShieldAction, for application: ApplicationToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
         switch action {
         case .primaryButtonPressed:
-            // Primary button dismisses the shield (user goes back to home)
+            shieldActionLog.notice("Primary shield button dismissed (application).")
             completionHandler(.close)
             
         case .secondaryButtonPressed:
@@ -44,6 +47,7 @@ class ShieldActionExtension: ShieldActionDelegate {
     override func handle(action: ShieldAction, for webDomain: WebDomainToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
         switch action {
         case .primaryButtonPressed:
+            shieldActionLog.notice("Primary shield button dismissed (web domain).")
             completionHandler(.close)
             
         case .secondaryButtonPressed:
@@ -53,18 +57,19 @@ class ShieldActionExtension: ShieldActionDelegate {
             completionHandler(.close)
         }
     }
-    
+
     // MARK: - Category Shield Actions
-    
+
     /// Handles the primary button action for a blocked category
     override func handle(action: ShieldAction, for category: ActivityCategoryToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
         switch action {
         case .primaryButtonPressed:
+            shieldActionLog.notice("Primary shield button dismissed (category).")
             completionHandler(.close)
-            
+
         case .secondaryButtonPressed:
             completionHandler(.close)
-            
+
         @unknown default:
             completionHandler(.close)
         }

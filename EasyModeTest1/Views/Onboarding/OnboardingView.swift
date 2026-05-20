@@ -14,43 +14,32 @@ import FamilyControls
 /// Container view for the onboarding flow
 /// Manages navigation between onboarding screens and completion state
 struct OnboardingView: View {
-    /// Callback when onboarding is complete
     let onComplete: () -> Void
-    
-    /// Current page in the onboarding flow
+
     @State private var currentPage: OnboardingPage = .welcome
-    
-    /// Screen Time manager for authorization
     @StateObject private var screenTimeManager = ScreenTimeManager.shared
-    
-    /// Track if authorization was successful
-    @State private var authorizationGranted = false
-    
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     var body: some View {
         ZStack {
             Color.parchment
                 .ignoresSafeArea()
-            
+
             VStack(spacing: 0) {
-                // Progress indicator
                 OnboardingProgressView(currentPage: currentPage)
                     .padding(.top, 16)
                     .padding(.horizontal, 32)
-                
-                // Page content
+
                 TabView(selection: $currentPage) {
                     WelcomePageView(onContinue: { advanceToPage(.permissions) })
                         .tag(OnboardingPage.welcome)
-                    
+
                     PermissionsPageView(
                         screenTimeManager: screenTimeManager,
-                        onContinue: {
-                            authorizationGranted = true
-                            advanceToPage(.appSelection)
-                        }
+                        onContinue: { advanceToPage(.appSelection) }
                     )
                     .tag(OnboardingPage.permissions)
-                    
+
                     AppSelectionPageView(
                         screenTimeManager: screenTimeManager,
                         onComplete: onComplete
@@ -58,14 +47,18 @@ struct OnboardingView: View {
                     .tag(OnboardingPage.appSelection)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: currentPage)
+                .animation(reduceMotion ? .linear(duration: 0.001) : .spring(response: 0.5, dampingFraction: 0.8), value: currentPage)
             }
         }
     }
-    
+
     private func advanceToPage(_ page: OnboardingPage) {
-        withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+        if reduceMotion {
             currentPage = page
+        } else {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
+                currentPage = page
+            }
         }
     }
 }

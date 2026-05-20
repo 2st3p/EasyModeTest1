@@ -144,23 +144,23 @@ Open UX items rolled up from `UX_ISSUES.md` (as of 2026-04-18), grouped so each 
 
 ### B. Active-task flow polish
 - [ ] **UX-009** _Medium_ — Soften "Give Up" copy (candidates: "End Session", "Take a Break"). Confirm alert already says "End Session".
-- [ ] **UX-010** _Medium_ — Completion animation waits 2.5s (`ActiveTaskView.swift` `DispatchQueue.main.asyncAfter(... 2.5)`) — feels sluggish.
+- [x] **UX-010** _Medium_ — Completion animation shortened to ~0.7s structured `Task` choreography in `ActiveTaskView`.
 - [ ] **UX-014** _Low_ — No undo on cancellation; tapping confirm is immediate.
-- [ ] **UX-018** _Medium_ — Duplicate completion haptic: `TaskView.completeTask` fires `UINotificationFeedbackGenerator`, then `ActiveTaskView.handleComplete` fires `HapticManager.shared.success()` 2.5s later.
+- [x] **UX-018** _Medium_ — Single success haptic at end of completion choreography (no duplicate from `TaskView`).
 - [ ] **UX-029** _Low_ — Ripple scale and text blur/fade animate separately; unify into one sequence.
 
 ### C. Brand & copy sweep (shields, Live Activity, comments)
-- [ ] **UX-027** _Medium_ — Rewrite shield subtitles in `Shared/SharedStorage.swift:31,46` ("...get your shit done first.") — current copy is harsh for a productivity brand.
-- [ ] **Live Activity icon (code-review #3)** — `birthday.cake.fill` appears **5** times in `EasyModeLiveActivity/FocusLiveActivity.swift` (lines 23, 46, 57, 73, 124). Either formally bless the cake metaphor (it is the tinted brand mark per UX-016) or replace.
+- [x] **UX-027** _Medium_ — Shield copy softened via `ShieldContentBuilder`.
+- [x] **Live Activity icon** — Replaced with `circle.hexagongrid.fill` + `BrandMark`; shared `BrandRGB` compiled into widget target.
 - [ ] **UX-020** _Low_ — Stale "DigitalDetoxCoach" comments still appear in `ActiveTaskView.swift`, `BlockView.swift`, `LogView.swift`, `TaskEntryView.swift`, `AppTabView.swift` (verified present). Rename to EasyMode.
-- [ ] **UX-021** _Low_ — Tab labeled "Settings" in `AppTabView.swift:34` actually hosts `BlockView`. Rename to "Block" (or split settings out).
+- [x] **UX-021** _Low_ — Block tab with `shield.fill` and localized "Block" label.
 
 ### D. Design tokens, typography, dark mode
-- [ ] **UX-019** _Low_ — Live Activity colors defined locally (`FocusLiveActivity.swift:82-84`). Expected (widget target can't import the main app module), but worth a shared-constants scheme.
+- [x] **UX-019** _Low_ — Live Activity uses `Shared/BrandRGB.swift` (compiled into widget target).
 - [ ] **UX-022** _Low_ — Typographic hierarchy mixed (task text 40pt, welcome 44pt, titles 36pt). Rationalize scale.
-- [ ] **UX-030** _Medium_ — No dark mode: system dark inverts parchment incorrectly. Define dark palette or opt out explicitly.
-- [ ] **UX-033** _Low_ — Tab bar labels at 10pt (`AppTabView.swift:80`); Apple recommends 11pt min.
-- [ ] **UX-034** _Low_ — Unused `UIBlurEffect` variable in `AppTabView.swift:74` (verified declared, never applied).
+- [x] **UX-030** _Medium_ — Dark mode via asset catalog colorsets + semantic `Color` fallbacks.
+- [x] **UX-033** _Low_ — Tab bar labels at 11pt.
+- [x] **UX-034** _Low_ — Tab bar uses `UIBlurEffect` via `configureWithTransparentBackground` + `backgroundEffect`.
 - [ ] **UX-035** _Low_ — `serifTitle` and `serifLarge` nearly identical (same weight, only default size differs); merge or differentiate.
 - [ ] **UX-038** _Medium_ — `Color.success` only used in `LogView`; extend to other success contexts.
 - [ ] **UX-044** _Low_ — Font size ladder skips 14/20/24pt — add to remove visual gaps.
@@ -171,13 +171,19 @@ Open UX items rolled up from `UX_ISSUES.md` (as of 2026-04-18), grouped so each 
 - [ ] **UX-040** _Medium_ — Header top padding reported inconsistent. Likewise largely unified via `Layout.headerTop` (UX-041 fixed); re-audit.
 
 ### F. History (Log) polish
-- [ ] **UX-028** _Low_ — No animation when log items appear / disappear.
-- [ ] Management UI (see code-review item #7 above) — swipe-to-delete and clear-all still not wired.
+- [x] **UX-028** _Low_ — List insert/remove animation with reduce-motion fallback.
+- [x] Management UI — swipe-to-delete, Clear All toolbar, empty-state CTA to Home.
 
 ### G. Icons & visual polish
 - [ ] **UX-046** _Medium_ — Reconcile icon sizing (category 24, feature/info 20 at 40x40 frame).
-- [ ] **UX-047** _Low_ — Shield UI explicitly sets `icon: nil` (`ShieldConfigurationExtension.swift:73`). Provide the EasyMode mark.
+- [x] **UX-047** _Low_ — Shield shows chartreuse `circle.hexagongrid.fill` brand mark.
 - [ ] **UX-048** _Low_ — Onboarding "Skip for Now" button looks disabled (gray). Give it a real secondary style.
+
+### I. CI / DX polish (code-review backlog)
+- [ ] **DX-001** _Low_ — Cache or pin SwiftLint/SwiftFormat in CI instead of `brew install` every job.
+- [ ] **DX-002** _Low_ — Revisit GitHub runner image (`macos-14`) vs simulator preference list in `scripts/test.sh`.
+- [ ] **UX-049** _Low_ — Assert or debug when `selectHomeTab` environment is unset outside `AppTabView`.
+- [ ] **UX-050** _Low_ — Ensure SwiftUI previews that need SwiftData provide `modelContainer` (AppTabView done; audit others).
 
 ### H. Historical / fixed UX items (for context)
 

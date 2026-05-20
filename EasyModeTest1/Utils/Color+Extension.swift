@@ -2,26 +2,78 @@
 //  Color+Extension.swift
 //  EasyModeTest1
 //
-//  Created by Erik Kernan on 3/25/25.
+//  Brand and semantic colors used throughout the main app.
+//  Brand tokens are defined canonically in `Shared/BrandTokens.swift`
+//  and the extensions/widget keep local mirrors that must stay in sync.
 //
 
 import SwiftUI
+import UIKit
 
 extension Color {
-    // Parchment Theme Colors
-    static let parchment = Color(red: 0.984, green: 0.976, blue: 0.961) // #FBF9F5
-    static let softBlack = Color(red: 0.149, green: 0.149, blue: 0.149) // #262626
+    // MARK: - Brand surfaces (canonical: Shared/BrandTokens.swift)
 
-    // Brand colors
-    static let primaryChartreuse = Color(red: 0.541, green: 0.788, blue: 0.149) // #8AC926
-    static let secondaryPink = Color(red: 0.922, green: 0.529, blue: 0.596) // #EB8698
+    /// Warm paper background. Light-mode parchment; reads slightly lifted vs dark walnut in dark mode.
+    static let parchment = Color("ParchmentBackground", bundle: .main, fallback: .brandParchment)
 
-    // Semantic colors
-    static let cardBackground = Color.white
-    static let mutedForeground = Color(red: 0.42, green: 0.42, blue: 0.42) // #6B6B6B — WCAG AA on parchment
-    static let mutedBackground = Color(red: 0.941, green: 0.941, blue: 0.941) // #F0F0F0
-    static let destructive = Color(red: 0.922, green: 0.263, blue: 0.263) // #EB4343
-    static let success = Color(red: 0.20, green: 0.78, blue: 0.35) // #34C759
-    static let borderColor = Color(red: 0.9, green: 0.9, blue: 0.9) // #E6E6E6
+    /// Primary text. Dark on parchment in light mode; warm bone in dark mode.
+    static let softBlack = Color("SoftBlackForeground", bundle: .main, fallback: .brandSoftBlack)
+
+    // MARK: - Brand accents
+
+    static let primaryChartreuse = Color.brandChartreuse
+    static let secondaryPink = Color.brandPink
+
+    // MARK: - Semantic colors
+
+    /// Card / elevated surface. Pure white in light mode, slightly lifted in dark mode.
+    static let cardBackground = Color("CardBackground", bundle: .main, fallback: .white)
+
+    /// Secondary text — passes WCAG AA on parchment.
+    /// `#6B6B6B` in light; warm dim bone in dark.
+    static let mutedForeground = Color(
+        "MutedForeground",
+        bundle: .main,
+        fallback: Color(red: 0.42, green: 0.42, blue: 0.42)
+    )
+
+    /// Filled but un-emphasized background (e.g. category chips).
+    static let mutedBackground = Color(
+        "MutedBackground",
+        bundle: .main,
+        fallback: Color(red: 0.941, green: 0.941, blue: 0.941)
+    )
+
+    /// Hairline borders and dividers.
+    static let borderColor = Color(
+        "BorderColor",
+        bundle: .main,
+        fallback: Color(red: 0.9, green: 0.9, blue: 0.9)
+    )
+
+    /// Destructive accent — `#EB4343`.
+    static let destructive = Color(red: 0.922, green: 0.263, blue: 0.263)
+
+    /// System-style success green — `#34C759`. Used for completion glyphs and confirmations.
+    static let success = Color(red: 0.20, green: 0.78, blue: 0.35)
+
+    /// Subdued placeholder for empty text fields. Adapts in dark mode.
+    static let placeholderForeground = Color(.placeholderText)
 }
 
+// MARK: - Asset-or-fallback helper
+
+private extension Color {
+    /// Initializes a color from an asset catalog name, falling back to the supplied color when
+    /// the asset isn't present. Lets us roll out the asset catalog colors incrementally without
+    /// crashing if a developer forgets to add the asset.
+    init(_ name: String, bundle: Bundle?, fallback: Color) {
+        #if canImport(UIKit)
+        if let resolved = UIColor(named: name, in: bundle, compatibleWith: nil) {
+            self = Color(uiColor: resolved)
+            return
+        }
+        #endif
+        self = fallback
+    }
+}

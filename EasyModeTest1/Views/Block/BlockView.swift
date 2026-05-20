@@ -8,8 +8,7 @@
 import SwiftUI
 import SwiftData
 
-/// View for managing blocked apps matching DigitalDetoxCoach design
-/// Empty state uses copy and category icons to inspire users; single CTA opens FamilyActivityPicker
+/// Settings/Block tab. Shows the current blocking selection or an empty state with a CTA.
 struct BlockView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var blockedApps: [BlockedApp]
@@ -81,8 +80,8 @@ struct BlockView: View {
                 viewModel.syncSelection()
             }
         }
-        .alert("Error", isPresented: $viewModel.showError) {
-            Button("OK", role: .cancel) { }
+        .alert(String(localized: "alert.error.title"), isPresented: $viewModel.showError) {
+            Button(String(localized: "alert.ok"), role: .cancel) { }
         } message: {
             Text(viewModel.errorMessage ?? "An unknown error occurred")
         }
@@ -191,7 +190,7 @@ struct BlockView: View {
 private struct CategoryIcon: View {
     let systemName: String
     let label: String
-    
+
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: systemName)
@@ -200,11 +199,14 @@ private struct CategoryIcon: View {
                 .frame(width: 44, height: 44)
                 .background(Color.mutedBackground)
                 .cornerRadius(12)
-            
+
             Text(label)
                 .font(.sansTiny(10))
                 .foregroundColor(.mutedForeground.opacity(0.6))
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text(label))
+        .accessibilityHint(Text("Example distraction category"))
     }
 }
 
