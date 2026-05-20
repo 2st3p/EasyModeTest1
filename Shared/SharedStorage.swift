@@ -131,8 +131,7 @@ final class SharedStorage {
             return groupDefaults
         }
         Self.log.warning(
-            "App Group '\(Self.appGroupIdentifier, privacy: .public)' unavailable — "
-                + "falling back to standard UserDefaults (extensions may not see shared state)."
+            "App Group '\(Self.appGroupIdentifier, privacy: .public)' unavailable — falling back to standard UserDefaults (extensions may not see shared state)."
         )
         return .standard
     }
