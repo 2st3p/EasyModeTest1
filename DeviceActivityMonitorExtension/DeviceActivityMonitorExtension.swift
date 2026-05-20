@@ -83,4 +83,3 @@ class DeviceActivityMonitorExtension: DeviceActivityMonitor {
         SharedStorage.shared.loadSelection()
     }
 }
-

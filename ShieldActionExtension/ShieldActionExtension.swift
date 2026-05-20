@@ -26,7 +26,11 @@ class ShieldActionExtension: ShieldActionDelegate {
     // MARK: - Application Shield Actions
     
     /// Handles the primary button action for a blocked application
-    override func handle(action: ShieldAction, for application: ApplicationToken, completionHandler: @escaping (ShieldActionResponse) -> Void) {
+    override func handle(
+        action: ShieldAction,
+        for application: ApplicationToken,
+        completionHandler: @escaping (ShieldActionResponse) -> Void
+    ) {
         switch action {
         case .primaryButtonPressed:
             shieldActionLog.notice("Primary shield button dismissed (application).")
@@ -95,5 +99,3 @@ class ShieldActionExtension: ShieldActionDelegate {
     - Log each time user hits the shield
     - Could feed into a "willpower score" or similar feature
  */
-
-
