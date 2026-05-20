@@ -1,6 +1,6 @@
 //
 //  SharedStorage.swift
-//  EasyModeTest1
+//  Easymode
 //
 //  Shared storage utilities for communication between the main app and the
 //  Family Controls extensions. Uses App Groups to share data across processes.
@@ -19,8 +19,8 @@ import FamilyControls
 
 /// Unified subsystem name used by every EasyMode binary.
 /// `os.Logger` instances created with this subsystem show up together in
-/// Console.app / `log stream --predicate 'subsystem == "name.erikkernan.EasyModeTest1"'`.
-public let easyModeLogSubsystem = "name.erikkernan.EasyModeTest1"
+/// Console.app / `log stream --predicate 'subsystem == "name.erikkernan.easymode"'`.
+public let easyModeLogSubsystem = "name.erikkernan.easymode"
 
 /// Factory for category-scoped loggers. Keeps the subsystem string in one place.
 @inlinable

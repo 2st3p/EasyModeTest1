@@ -41,6 +41,8 @@ jobs:
         run: ./scripts/test.sh build
 
       - name: Unit tests
+        env:
+          STRIP_SIMULATOR_PLUGINS_FOR_UNIT: "1"
         run: ./scripts/test.sh unit
 
       - name: UI regressions

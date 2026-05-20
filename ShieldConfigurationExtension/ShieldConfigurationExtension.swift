@@ -64,7 +64,7 @@ class ShieldConfigurationExtension: ShieldConfigurationDataSource {
 
     // MARK: - Configuration Builder
 
-    /// Creates the shield configuration with EasyMode branding
+    /// Creates the shield configuration with Easymode branding
     private func createShieldConfiguration(
         for context: ShieldContentContext,
         blockedAppName: String? = nil
